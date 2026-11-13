@@ -1,0 +1,9 @@
+export const MAX_PAGE_COUNT = 10000;
+export const MAX_COPIES = 100;
+export const MAX_JOB_DURATION_MINUTES = 800001;
+export const MAX_JOB_COST = 10000000000;
+export const CONNECTED_MAX_FILE_BYTES = 10 * 1024 * 1024;
+export const SHOP_TIME_ZONE = 'Asia/Kolkata';
+export const MAX_QUEUE_JOBS = 1000;
+export const MAX_DOCUMENT_NAME_LENGTH = 120;
+export const MAX_INSTRUCTIONS_LENGTH = 500;

@@ -1,0 +1,2639 @@
+PRINTQ SHOPKEEPER PORTAL — COMPLETE MASTER DEVELOPMENT PROMPT
+VIBE Sprint 2026 | Problem Card 24
+Intelligent, Secure, Responsive Printing Management Website
+1. YOUR ROLE AND PRIMARY OBJECTIVE
+Act as a principal software architect, senior React and TypeScript engineer, UI/UX specialist, cybersecurity-conscious frontend developer, algorithm designer, and software quality assurance engineer.
+
+Your responsibility is to design, implement, test, debug, and deliver a complete PrintQ Shopkeeper Portal website.
+
+This is a functional hackathon project, not a static website, design concept, or incomplete prototype.
+
+Every feature must have working logic, proper validation, appropriate error handling, and realistic state management.
+
+Do not stop after producing a plan or scaffolding. Implement and verify the actual code.
+
+CRITICAL PROJECT ARCHITECTURE
+Our team is developing ONE website containing TWO separate portals:
+
+PrintQ Student Portal — Being developed independently by another teammate.
+
+PrintQ Shopkeeper Portal — YOUR ONLY RESPONSIBILITY.
+
+A third teammate handles the shared queue engine, data integration, central application routing, and final system testing.
+
+Build ONLY the Shopkeeper Portal.
+
+Do not create or modify the Student Portal, implement a backend server, or replace shared code owned by another teammate.
+
+The Shopkeeper Portal must be compatible with the Student Portal's data structures, token format, printing assumptions, and job lifecycle.
+
+The final website must run in a standard browser.
+
+Do not create:
+
+Android applications or APKs.
+
+Progressive Web Apps.
+
+Service workers.
+
+Installation manifests.
+
+Native mobile applications.
+
+Separate applications requiring different hosting services.
+
+2. PROJECT DESCRIPTION
+PrintQ is a smart campus printing queue management platform.
+
+Students submit print requests through the Student Portal. Shopkeepers receive and process those requests through the Shopkeeper Portal.
+
+The Shopkeeper Portal must help printing shops handle workloads efficiently, reduce unnecessary waiting, manage urgent jobs fairly, and keep students informed.
+
+Essential capabilities
+The Shopkeeper Portal must support:
+
+Receiving student print jobs.
+
+Viewing incoming requests.
+
+Accessing uploaded documents when available.
+
+Managing printing queues.
+
+Reordering queued jobs.
+
+Updating printing statuses.
+
+Generating dynamic waiting-time estimates.
+
+Displaying estimated pickup times.
+
+Receiving student urgency requests.
+
+Approving or rejecting urgent requests.
+
+Previewing the effects of queue priority changes.
+
+Optimizing printing order through local algorithms.
+
+Simulating alternative queue arrangements.
+
+Managing printer breakdowns and maintenance.
+
+Tracking printing costs.
+
+Verifying pickup QR codes.
+
+Recording collected print jobs.
+
+Creating digital order receipts.
+
+Calculating paper usage and estimated savings.
+
+Displaying printing statistics and analytics.
+
+Showing document quality warnings.
+
+Supporting English, Hindi, and Kannada.
+
+Operating in a complete browser-based demo mode.
+
+Remaining compatible with the Student Portal.
+
+Every important operation must produce a visible and accurate result.
+
+3. STRICT VIBE SPRINT HACKATHON COMPLIANCE
+These requirements override all other instructions.
+
+Rule 1 — Browser-first functionality
+The Shopkeeper Portal must work in a normal browser with:
+
+Fictional demonstration data.
+
+Local calculations.
+
+No required external API.
+
+No paid services.
+
+No authentication provider.
+
+No mandatory backend server.
+
+No database installation.
+
+No secret keys.
+
+No external hosting dependency.
+
+The core Shopkeeper workflow must function independently, even before integration with the Student Portal.
+
+Rule 2 — No .env dependency
+The project must run without any .env file.
+
+Never require API keys, secret credentials, passwords, paid cloud accounts, or external service configuration.
+
+Rule 3 — Fully functional user journey
+The following official workflow must work:
+
+A print job exists in the queue.
+
+The shopkeeper opens the job.
+
+The shopkeeper changes its status.
+
+The updated status appears correctly.
+
+The shopkeeper selects an eligible queued job.
+
+The shopkeeper clicks Mark Urgent.
+
+A confirmation dialog appears.
+
+The priority change is applied only after confirmation.
+
+The queue order and estimated waiting times update correctly.
+
+Validation, persistence, successful results, and errors must be visible.
+
+Rule 4 — Fictional demonstration data
+Use only fictional:
+
+Student details.
+
+Document names.
+
+Sample PDF files.
+
+Print requests.
+
+Shop information.
+
+Job histories.
+
+Prices and transactions.
+
+Do not bundle real student records or personal documents.
+
+Rule 5 — Submission deliverables
+Produce:
+
+Fully functional source code.
+
+README.
+
+Integration documentation.
+
+Security documentation.
+
+Screenshots of important workflows.
+
+Instructions for demonstrating the website.
+
+Screen-recording instructions when a live preview cannot be shared.
+
+UNKNOWN HACKATHON CONSTRAINTS
+The organizers have additional locked constraints and a Minute 40 Twist.
+
+Their exact contents are not available.
+
+Do not invent them.
+
+Keep the implementation modular so the real requirements can be incorporated later.
+
+4. TECHNOLOGY STACK
+Use the following technologies:
+
+Component	Technology
+Frontend	React
+Language	TypeScript with strict typing
+Build tool	Vite
+UI styling	Tailwind CSS
+Navigation	React Router
+Icons	Lucide React
+Job and document persistence	IndexedDB
+Lightweight preferences	localStorage
+Cross-tab updates	BroadcastChannel with suitable fallback
+Queue algorithms	TypeScript
+QR scanning	Locally bundled compatible QR library
+Data visualization	Recharts or another lightweight local library
+Testing	Vitest + React Testing Library
+Use compatible, stable dependencies.
+
+Avoid unnecessary packages or excessive project complexity.
+
+Do not use Firebase, Supabase, paid APIs, remote AI services, payment gateways, or cloud databases.
+
+Do not use CDN-hosted JavaScript that requires internet access at runtime.
+
+Required commands:
+
+npm install
+
+npm run dev
+
+npm run build
+
+npm run preview
+
+npm run test
+
+All commands must be configured and verified.
+
+5. PROJECT STRUCTURE
+Use a modular folder structure that keeps Shopkeeper code independent.
+
+Suggested structure:
+
+src/features/shopkeeper/pages/
+
+src/features/shopkeeper/components/
+
+src/features/shopkeeper/dashboard/
+
+src/features/shopkeeper/jobs/
+
+src/features/shopkeeper/queue/
+
+src/features/shopkeeper/optimization/
+
+src/features/shopkeeper/simulation/
+
+src/features/shopkeeper/urgent/
+
+src/features/shopkeeper/printers/
+
+src/features/shopkeeper/documents/
+
+src/features/shopkeeper/qr/
+
+src/features/shopkeeper/pricing/
+
+src/features/shopkeeper/receipts/
+
+src/features/shopkeeper/ecoprint/
+
+src/features/shopkeeper/analytics/
+
+src/features/shopkeeper/i18n/
+
+src/features/shopkeeper/demo/
+
+src/features/shopkeeper/services/
+
+src/features/shopkeeper/hooks/
+
+src/features/shopkeeper/tests/
+
+Export a reusable ShopkeeperPortal component.
+
+The integration teammate will mount it at:
+
+/shopkeeper
+
+During standalone development, provide a temporary entry point for testing the Shopkeeper Portal independently.
+
+Do not overwrite Student Portal files or shared project configuration without coordinating.
+
+6. PROFESSIONAL WEBSITE DESIGN
+Design a modern, premium printing operations dashboard.
+
+The website should resemble a real professional management system, not a basic student assignment.
+
+Visual design
+Suggested palette:
+
+Primary: Indigo/Violet.
+
+Secondary: Cyan/Teal.
+
+Background: White and soft grey.
+
+Success: Green.
+
+Warning: Amber.
+
+Error: Red.
+
+Use:
+
+Modern typography.
+
+Professional sidebar navigation.
+
+Rounded dashboard cards.
+
+Clear tables.
+
+Subtle shadows.
+
+Consistent spacing.
+
+Meaningful icons.
+
+Smooth but lightweight animations.
+
+Light and dark themes.
+
+Prioritize usability over excessive decoration.
+
+Desktop layout
+Use a professional dashboard layout with:
+
+Sidebar navigation.
+
+Top header.
+
+Current printer status.
+
+Active job indicators.
+
+Dashboard statistics.
+
+Main operational workspace.
+
+Mobile layout
+The website must remain fully usable on Android browsers.
+
+Use:
+
+Responsive cards.
+
+Collapsible navigation.
+
+Touch-friendly controls.
+
+Accessible action menus.
+
+Appropriately sized buttons.
+
+No horizontal overflow or overlapping text.
+
+Main navigation
+Implement:
+
+Dashboard
+
+Print Queue
+
+Urgent Requests
+
+Smart Optimization
+
+Queue Simulator
+
+Printer Management
+
+QR Verification
+
+Completed Orders
+
+Analytics and EcoPrint
+
+Settings
+
+Group less-used options if required to avoid overcrowding.
+
+Every navigation control must work.
+
+Immersive Visual System, WebGL/Shader Landing Experience & UI Specification
+
+In addition to the operational dashboard layout above, implement an immersive, screenshot-worthy landing/entry showcase and cohesive interactive UI system across the PrintQ Shopkeeper Portal using the complete visual and creative-direction specification integrated below.
+
+Integration alignment with the PrintQ Shopkeeper Portal requirements:
+Translate every visual rule, hero canvas setup, dithered shader behavior, organic 3D displacement, particle system, scroll narrative, component state (default, hover, active, disabled), interaction timing curve, responsive degradation strategy, and accessibility target below into working, locally bundled React, TypeScript, Tailwind CSS, Three.js/WebGL, and GSAP code—always delivering complete runnable implementation per Sections 1–35 rather than stopping at prose specifications or mockups.
+Resolve {{reference-aesthetic}} using Section 6 Visual Design (Primary Indigo/Violet, Secondary Cyan/Teal, white/soft-grey and dark-mode surfaces, Green/Amber/Red semantic status indicators, modern typography, subtle shadows, and crisp legibility).
+Resolve {{company-context}} using Section 2 Project Description (PrintQ Shopkeeper Portal: a smart campus printing queue management platform built for print shopkeepers, balancing distinctive future-forward visual craft with operational clarity and never mislabeling deterministic PrintQ rules as AI per Section 22).
+Resolve {{technical-constraints}} using Sections 3, 4, 27, and 29 (React + TypeScript + Vite + Tailwind CSS with locally bundled npm packages only and zero runtime CDN scripts, browser-first standalone demo execution without backend, .env, or API keys, 60fps desktop budget with graceful static/CSS degradation on Android and lower-end GPUs, prefers-reduced-motion support, keyboard and screen-reader accessibility, and zero obstruction to daily Shopkeeper workflows).
+Where the embedded UI specification refers to its original design-brief framing ("launching an AI product", "Focus on **visual system and creative direction**, not code implementation", or "Structure your response with these nine sections clearly labeled"), apply all nine sections directly as the realized UI architecture, implemented features, and accompanying design documentation for the PrintQ Shopkeeper Portal, while keeping Sections 1–5 and 25–35 authoritative for all functional, data-contract, and hackathon compliance constraints.
+
+## Role
+
+You are a creative technologist and WebGL visualization specialist designing immersive landing page experiences. You balance experimental shader aesthetics with performance, accessibility, and developer feasibility—creating visually distinct experiences that achieve high engagement without sacrificing clarity.
+
+## Context
+
+The company is launching an AI product in a visually homogeneous market where gradient meshes and generic futuristic designs dominate. Previous attempts failed by going too abstract (message lost) or too literal (forgettable). The goal is a landing page that sets a new visual standard—memorable, screenshot-worthy, and distinctly future-forward—while remaining legible and technically achievable.
+
+## Task
+
+Design a full-screen, scroll-reactive landing page featuring custom dithered shader effects, organic 3D displacement, and particle systems built on Three.js/WebGL with GSAP orchestration. Focus on **visual system and creative direction**, not code implementation. Provide specifications developers can translate directly into working experiences.
+
+Extract the aesthetic foundation (colors with hex codes, textures, mood, visual language) from {{reference-aesthetic}}. Incorporate the product positioning, target audience, and brand personality from {{company-context}}. Respect the development limitations, browser support, hosting environment, performance budgets, and framework preferences in {{technical-constraints}}.
+
+## Output
+
+Structure your response with these nine sections clearly labeled:
+
+1. **Aesthetic Foundation** – Colors (hex codes), textures, mood, and visual language
+2. **Hero Section Design** – Canvas setup, shader states, typography treatment, load-in animations
+3. **Scroll Narrative** – Section-by-section journey with shader transformations, content reveals, transition choreography, and timing
+4. **Component Specifications** – Buttons, cards, navigation, interactive elements with all states (default, hover, active, disabled)
+5. **Shader Behaviors** – Natural-language descriptions of dithering effects, displacement patterns, color transitions, particle systems that developers can implement
+6. **Interaction Patterns** – Hover states, click responses, scroll behaviors, mouse tracking, micro-interactions with timing (ease curves, duration)
+7. **Responsive Strategy** – Multi-device adaptation, performance optimization, graceful degradation for lower-end devices
+8. **Technical Architecture** – Required stack (Three.js, GSAP, etc.), file structure, performance targets (60fps, load time), accessibility considerations (reduced motion, keyboard nav, screen readers)
+9. **Developer Handoff** – Clear specs, animation timing charts, quality standards
+
+Balance experimental visual boundaries with enterprise-grade polish. Every specification should be actionable for a developer without requiring interpretation or follow-up questions.
+
+Ensure this visual system, WebGL/GSAP hero and scroll-reactive experience, and micro-interaction layer integrate cleanly with every operational view in Sections 7–35—offering immediate, zero-friction access into the Dashboard and Print Queue and verifying cleanly under TypeScript checks, Vitest/React Testing Library tests (with safe WebGL/reduced-motion fallbacks in test environments), and the production Vite build.
+
+7. SHOPKEEPER DASHBOARD
+Create a comprehensive operational dashboard.
+
+Statistics
+Display:
+
+Total active jobs.
+
+Queued jobs.
+
+Currently printing jobs.
+
+Ready-for-pickup jobs.
+
+Pending urgent requests.
+
+Completed jobs.
+
+Estimated remaining workload.
+
+Estimated value of queued printing jobs.
+
+All calculations must use actual job data.
+
+Do not display fabricated statistics.
+
+Currently printing
+Display:
+
+Job token.
+
+Document name.
+
+Print mode.
+
+Number of copies.
+
+Estimated processing duration.
+
+Current job status.
+
+Provide a working Mark Ready action.
+
+Upcoming queue
+Show the next five queued jobs.
+
+Each card must display:
+
+Queue position.
+
+Token.
+
+Document name.
+
+Print mode.
+
+Copy count.
+
+Estimated duration.
+
+Priority.
+
+Printer status
+Display whether the printer is:
+
+Operational.
+
+Paused.
+
+Under Maintenance.
+
+Show an appropriate warning when printing is unavailable.
+
+Recent activity
+Display recent genuine application events such as:
+
+Job received.
+
+Printing started.
+
+Printing completed.
+
+Urgent request received.
+
+Urgent request approved.
+
+Job collected.
+
+Do not generate random activity as though it occurred.
+
+8. COMPLETE PRINT QUEUE MANAGEMENT
+This is the MOST IMPORTANT Shopkeeper feature.
+
+Implement a reliable, interactive print queue.
+
+Job information
+Every job must display:
+
+Queue position.
+
+Unique job token.
+
+Document name.
+
+Original filename, when available.
+
+Page count.
+
+Number of copies.
+
+Black-and-white/colour mode.
+
+Single/double-sided preference.
+
+Paper size.
+
+Estimated price.
+
+Estimated processing time.
+
+Waiting time.
+
+Estimated pickup time.
+
+Job status.
+
+Priority.
+
+Submission timestamp.
+
+Queue actions
+Allow the shopkeeper to:
+
+View job details.
+
+Open available documents.
+
+Download documents.
+
+Start printing.
+
+Mark printing complete.
+
+Reorder queued jobs.
+
+View urgency requests.
+
+Mark eligible jobs urgent.
+
+View estimated urgency impact.
+
+Search and filtering
+Provide:
+
+Search by job token.
+
+Search by document name.
+
+Filter by status.
+
+Filter by printing mode.
+
+Filter urgent jobs.
+
+Sort by submission time.
+
+Ensure filters operate on actual data.
+
+Queue reordering
+Provide Move Up and Move Down buttons.
+
+Optional drag-and-drop may be added, but it must not replace accessible controls.
+
+Requirements:
+
+Only eligible queued jobs may be reordered.
+
+Update their positions consistently.
+
+Recalculate affected waiting times.
+
+Preserve job identity and metadata.
+
+Persist changes.
+
+Reject invalid operations.
+
+Prevent reordering collected or already-ready jobs.
+
+Preserve the current printing job unless the shared engine explicitly supports an interruption workflow.
+
+The queue must not lose jobs, duplicate jobs, or corrupt ordering during updates.
+
+9. COMPLETE JOB STATUS MANAGEMENT
+Use the agreed lifecycle:
+
+queued → printing → ready → collected
+
+Start Printing
+When a queued job is selected:
+
+Check that the printer is operational.
+
+Verify the job is eligible.
+
+Ensure printing-capacity constraints are satisfied.
+
+Update its status.
+
+Record the timestamp.
+
+Recalculate queue estimates.
+
+Display successful feedback.
+
+For the initial prototype, assume a single active printing job unless the shared system explicitly supports multiple printers.
+
+Mark Ready
+When printing is completed:
+
+Update the status to Ready.
+
+Record completion time.
+
+Remove the job from the remaining printing workload.
+
+Retain it in the Ready for Pickup section.
+
+Recalculate the waiting times of pending jobs.
+
+Mark Collected
+After successful token verification:
+
+Verify the job is Ready.
+
+Confirm the action.
+
+Change its status to Collected.
+
+Record collection time.
+
+Move it into completed history.
+
+Do not automatically mark orders collected without verification.
+
+Invalid transitions
+Reject:
+
+Queued → Collected.
+
+Ready → Printing without a specifically designed correction workflow.
+
+Collected → Queued.
+
+Duplicate collection.
+
+Status transitions must be deterministic and consistent.
+
+10. DYNAMIC QUEUE ETA ENGINE
+Implement or consume deterministic calculations that match the Student Portal.
+
+Demonstration assumptions
+Job setup time: 1 minute.
+
+Black-and-white processing: 0.4 minutes per printed side.
+
+Colour processing: 0.8 minutes per printed side.
+
+Formula:
+
+printedSides = pageCount × copies
+
+jobDuration = 1 + printedSides × processingTimePerSide
+
+For queued jobs, estimate waiting time based on unfinished jobs ahead in queue order, including remaining processing work from the currently active job.
+
+Distinguish:
+
+Time before printing begins.
+
+Own job processing duration.
+
+Estimated time until ready for pickup.
+
+For example:
+
+If three preceding jobs require 4, 5, and 6 minutes, the estimated wait before printing starts is 15 minutes, ignoring any additional current-job work.
+
+Recalculate when:
+
+Jobs arrive.
+
+Jobs are reordered.
+
+Statuses change.
+
+Urgent requests are approved.
+
+Printer availability changes.
+
+Printing configuration changes.
+
+Do not use random ETAs.
+
+When the shared queue engine is available, treat its output as authoritative.
+
+Do not maintain a separate conflicting calculation implementation.
+
+11. SMART QUEUE OPTIMIZER
+Implement a genuinely functional algorithmic optimization feature.
+
+The purpose is to suggest more efficient queue ordering.
+
+Optimization objectives
+Consider:
+
+Estimated job duration.
+
+Current urgency.
+
+Existing queue position.
+
+Submission order.
+
+Starvation prevention.
+
+Printer availability.
+
+Implement at least one deterministic optimization strategy.
+
+A suitable demonstration strategy is Shortest Processing Time First for eligible normal queued jobs, subject to priority and fairness constraints.
+
+Workflow
+Read the current queue.
+
+Calculate existing estimated waiting times.
+
+Generate a proposed optimized queue.
+
+Calculate proposed waiting times.
+
+Compare the results.
+
+Display estimated benefits and disadvantages.
+
+Require shopkeeper confirmation.
+
+Apply changes only after approval.
+
+Comparison dashboard
+Show:
+
+Original queue.
+
+Proposed queue.
+
+Current average waiting time.
+
+Proposed average waiting time.
+
+Total estimated waiting time saved, if any.
+
+Jobs with longer waits.
+
+Jobs with shorter waits.
+
+Never claim an improvement when the actual calculated average does not improve.
+
+Fairness rules
+Do not interrupt an actively printing job.
+
+Respect approved urgent priority.
+
+Preserve existing urgent-job ordering unless explicitly authorized.
+
+Prevent indefinite postponement of longer jobs.
+
+Keep deterministic tie-breaking.
+
+Explain trade-offs honestly.
+
+Provide an option to cancel without modifying the queue.
+
+Do not apply automatic optimization silently.
+
+12. WHAT-IF QUEUE SIMULATOR
+Create a dedicated simulation interface.
+
+This is one of the project's most impressive advanced features.
+
+Supported scenarios
+Allow the shopkeeper to simulate:
+
+Moving a job earlier.
+
+Moving a job later.
+
+Marking a job urgent.
+
+Adding a hypothetical new job.
+
+Changing a job's print quantity.
+
+Changing B&W to colour.
+
+Printer downtime.
+
+Resuming printer operations.
+
+Applying smart queue optimization.
+
+Simulation rules
+Clone the current queue snapshot.
+
+Apply changes to the cloned queue only.
+
+Recalculate all affected estimates.
+
+Compare current and proposed results.
+
+Display the differences.
+
+Never modify the real queue while simulating.
+
+Visualization
+Show:
+
+Current arrangement.
+
+Simulated arrangement.
+
+Before/after waiting times.
+
+Affected jobs.
+
+Average wait comparison.
+
+Estimated processing workload.
+
+Label the screen:
+
+Simulation Mode — Changes Not Applied
+
+If a simulated change is eligible for real application, provide Apply Changes with confirmation.
+
+Before applying, verify that the real queue has not changed since the simulation was created. If it has, require recalculation.
+
+13. URGENT PRINT REQUEST SYSTEM
+This is a critical official judge requirement.
+
+The Shopkeeper Portal must support two types of urgency actions:
+
+Urgent requests submitted by students.
+
+Direct urgent marking by the shopkeeper.
+
+Both require explicit confirmation before changing the queue.
+
+Incoming urgency requests
+Display:
+
+Job token.
+
+Document name.
+
+Request time.
+
+Current queue position.
+
+Existing ETA.
+
+Proposed priority.
+
+Estimated impact.
+
+Actions:
+
+View Impact.
+
+Approve.
+
+Reject.
+
+Approval
+Select an eligible pending request.
+
+Generate the proposed priority order.
+
+Calculate the impact.
+
+Display a confirmation modal.
+
+Require explicit approval.
+
+Apply the change.
+
+Update urgency status.
+
+Recalculate queue positions.
+
+Recalculate ETAs.
+
+Notify the shared data layer.
+
+Rejection
+Select Reject.
+
+Record the rejection.
+
+Leave the queue unchanged.
+
+Update urgency status.
+
+Display confirmation.
+
+Direct Mark Urgent
+Allow the shopkeeper to select a normal queued job and mark it urgent.
+
+Do not change its priority immediately when the button is clicked.
+
+Display the impact preview and confirmation first.
+
+Urgency rules
+Already printing jobs cannot be moved into the waiting queue.
+
+Ready and collected jobs cannot be marked urgent.
+
+Duplicate urgent requests are prevented.
+
+Existing urgent jobs retain stable relative ordering unless explicitly changed.
+
+Urgent changes must not bypass queue-state validation.
+
+14. URGENT-JOB IMPACT PREVIEW
+Before confirming urgent priority, show:
+
+Existing queue position.
+
+Proposed queue position.
+
+Current estimated pickup time.
+
+Proposed estimated pickup time.
+
+Estimated minutes saved.
+
+Number of delayed jobs.
+
+Estimated delay per affected job.
+
+Overall queue impact.
+
+Calculate this from two queue snapshots.
+
+Do not mutate the actual queue until confirmation.
+
+Do not display fabricated impact numbers.
+
+If the underlying queue changes while the confirmation dialog is open, invalidate the old preview and require recalculation before applying it.
+
+This feature must work in local demo mode.
+
+15. PRINTER BREAKDOWN AND MAINTENANCE MANAGEMENT
+Implement printer availability management.
+
+Printer states
+Operational.
+
+Paused.
+
+Maintenance.
+
+Actions
+Allow:
+
+Pause Printing.
+
+Report Breakdown.
+
+Set Estimated Downtime.
+
+Resume Printing.
+
+Pause or breakdown workflow
+Shopkeeper opens Printer Management.
+
+Selects Pause or Maintenance.
+
+Optionally enters estimated downtime.
+
+Confirms.
+
+The printer becomes unavailable for new printing work.
+
+The queue engine updates or invalidates affected ETAs.
+
+The Shopkeeper Dashboard displays the warning.
+
+The Student Portal can consume the new state.
+
+If downtime is unknown, show that estimates are unavailable or delayed rather than inventing a recovery time.
+
+Resume workflow
+Shopkeeper selects Resume.
+
+Confirm the action.
+
+Update printer state.
+
+Recalculate waiting times.
+
+Show the updated queue.
+
+Maintain accurate job statuses during interruptions.
+
+Do not falsely mark jobs completed because maintenance ended.
+
+16. SMART PICKUP WINDOW MANAGEMENT
+The Shopkeeper Portal must support estimated pickup windows.
+
+For each job, calculate:
+
+Estimated ready time.
+
+Suggested pickup window.
+
+Expected delay, if available.
+
+Use a configurable buffer, such as 15 minutes after estimated readiness.
+
+Example:
+
+Estimated ready: 3:45 PM.
+
+Suggested pickup: 3:45 PM–4:00 PM.
+
+Requirements
+Base the window on calculated job readiness.
+
+Consider printer downtime.
+
+Consider configured shop operating hours.
+
+Recalculate when ETAs change.
+
+Do not generate pickup windows when readiness cannot be estimated.
+
+Identify windows as suggestions, not guaranteed reservations.
+
+Provide a shop-level pickup schedule or timeline.
+
+The Student Portal must be able to display the shared pickup estimate.
+
+17. DOCUMENT MANAGEMENT AND PRE-PRINT QUALITY CHECKS
+Support actual uploaded document handling.
+
+Supported formats
+PDF.
+
+DOC.
+
+DOCX.
+
+JPG.
+
+JPEG.
+
+PNG.
+
+Document list
+Show:
+
+Document name.
+
+Original filename.
+
+File type.
+
+File size.
+
+Page count.
+
+Printing preferences.
+
+Associated job token.
+
+Document availability.
+
+Document access
+Support:
+
+Preview where browser capabilities permit.
+
+Download the original file.
+
+Open supported files for printing.
+
+Graceful handling of unsupported previews.
+
+For DOC/DOCX, provide metadata and download access rather than claiming accurate browser preview when conversion is unavailable.
+
+Do not use external conversion APIs.
+
+Print action
+Where the browser supports it, allow the shopkeeper to open a supported document and invoke the browser's normal print workflow.
+
+Do not claim direct printer hardware control.
+
+Browser printing and job-status updates are separate operations.
+
+Quality checker
+Display checks for:
+
+Supported format.
+
+Valid file size.
+
+Available file content.
+
+Valid page count.
+
+Complete print preferences.
+
+Possible malformed PDF.
+
+Password-protected PDF where reliably detectable.
+
+Image resolution warnings where supported.
+
+Show warnings with actionable explanations.
+
+Do not claim virus scanning or guaranteed document quality.
+
+If a job contains only a document name, display:
+
+"Document information available — no file attached."
+
+Name-only jobs must remain valid for the official MVP.
+
+Storage behavior
+Use IndexedDB for local document blobs.
+
+When integrated with the Student Portal on the same origin, use the exact shared data contract agreed upon by the integration teammate.
+
+Do not implement a conflicting document store.
+
+Never claim that browser-stored documents are available on another device automatically.
+
+18. PRINT COST ESTIMATION AND SHOP PRICING
+Use the same assumptions as the Student Portal.
+
+Default demonstration prices:
+
+Black & White: ₹2 per printed side.
+
+Colour: ₹10 per printed side.
+
+Formula:
+
+estimatedCost = pageCount × copies × pricePerPrintedSide
+
+Example:
+
+10 pages × 2 copies × ₹2 = ₹40.
+
+Requirements
+Show estimated cost per job.
+
+Calculate total estimated queued job value.
+
+Calculate total estimated completed job value.
+
+Allow demo configuration of pricing where permitted by the shared system.
+
+Ensure pricing changes are reflected consistently.
+
+Use Indian Rupee formatting.
+
+Double-sided printing changes physical sheet consumption but does not automatically halve per-side printing charges.
+
+Do not include a fake payment gateway.
+
+Do not claim an estimated print value is actual collected revenue.
+
+19. QR PICKUP VERIFICATION
+Implement working QR-based pickup verification.
+
+Main functionality
+Open QR Verification.
+
+Request camera access when supported.
+
+Scan compatible QR codes.
+
+Decode the agreed token payload.
+
+Look up the associated job.
+
+Display job information.
+
+Verify whether the job is Ready.
+
+Require confirmation before collection.
+
+Update the job to Collected when valid.
+
+Manual token fallback
+Provide a manual token input.
+
+This must work even when:
+
+The camera is unavailable.
+
+The user denies permission.
+
+The browser blocks camera access.
+
+The device does not support the scanning library.
+
+Validate the token against actual available records.
+
+Never fabricate a successful token match.
+
+QR format
+Use the same versioned QR payload format as the Student Portal.
+
+Agree on one format with the integration teammate, for example:
+
+printq:v1:<token>
+
+Do not introduce incompatible QR encoding independently.
+
+Do not embed document contents, personal information, or passwords in QR codes.
+
+Camera access may require HTTPS or localhost. On ordinary HTTP LAN addresses, manual token entry must remain available.
+
+20. DIGITAL RECEIPT MANAGEMENT
+Implement digital order acknowledgments or print receipts.
+
+Each receipt should include:
+
+PrintQ branding.
+
+Fictional shop display name.
+
+Job token.
+
+Document name.
+
+Number of copies.
+
+Page count.
+
+Printing mode.
+
+Estimated cost.
+
+Job status.
+
+Submission timestamp.
+
+Estimated pickup time, when available.
+
+Provide:
+
+View Receipt.
+
+Print Receipt.
+
+Save Receipt as PDF using supported browser printing or a locally bundled generator.
+
+Keep receipt calculations consistent with Student Portal estimates.
+
+Clearly label receipts as order acknowledgments unless actual payment records exist.
+
+Do not falsely indicate that payment has been completed.
+
+21. ECOPRINT — PAPER USAGE AND SAVINGS
+Implement a genuine environmental analytics feature.
+
+Calculations
+For a document with pageCount pages and copies copies:
+
+singleSidedSheets = pageCount × copies
+
+doubleSidedSheets = ceil(pageCount / 2) × copies
+
+estimatedSheetsSaved = singleSidedSheets - doubleSidedSheets
+
+Count savings only for jobs actually configured for double-sided printing.
+
+EcoPrint dashboard
+Show:
+
+Total estimated sheets used.
+
+Estimated sheets saved.
+
+Single-sided versus double-sided jobs.
+
+Paper savings by date.
+
+Percentage of duplex jobs.
+
+Estimated overall paper reduction.
+
+Derive values from completed or relevant actual job records and clearly state the basis.
+
+Avoid unsupported environmental claims such as exact carbon savings without defensible documented calculations.
+
+Use locally available data only.
+
+22. ADVANCED SHOP ANALYTICS
+Create a professional analytics dashboard.
+
+Required metrics
+Display:
+
+Total submitted jobs.
+
+Total completed jobs.
+
+Average estimated processing time.
+
+Average waiting time.
+
+Total estimated printing value.
+
+B&W versus colour distribution.
+
+Jobs per day.
+
+Printing demand by hour.
+
+Urgent requests received.
+
+Urgent requests approved.
+
+Printer downtime where recorded.
+
+Double-sided printing adoption.
+
+Estimated paper usage.
+
+Charts
+Create clear charts for:
+
+Print jobs over time.
+
+B&W vs Colour distribution.
+
+Peak printing hours.
+
+Queue workload.
+
+Average estimated wait.
+
+EcoPrint paper savings.
+
+Use an appropriate locally bundled chart library.
+
+Accuracy requirements
+Derive charts from actual stored job records.
+
+Avoid fake hardcoded values presented as real analytics.
+
+Handle empty datasets.
+
+Handle small sample sizes.
+
+Label fictional demonstration statistics.
+
+Distinguish estimated amounts from actual payments.
+
+Never claim forecasts are based on AI when using simple statistical rules.
+
+23. MULTILINGUAL SUPPORT
+Support three languages:
+
+English.
+
+Hindi.
+
+Kannada.
+
+Implement locally bundled translation dictionaries.
+
+Translate:
+
+Navigation.
+
+Dashboard labels.
+
+Queue controls.
+
+Buttons.
+
+Status messages.
+
+Urgency confirmation.
+
+Printer maintenance messages.
+
+Analytics descriptions.
+
+QR verification.
+
+Error messages.
+
+Settings.
+
+Receipt labels.
+
+Requirements:
+
+Instant language switching.
+
+Persist selected language.
+
+Correct Unicode rendering.
+
+Suitable fonts/fallbacks.
+
+No external translation API.
+
+English fallback for missing strings.
+
+Ensure translations do not break responsive layouts.
+
+Use the same translation conventions as PrintQ Student where possible.
+
+24. GUIDED JUDGE DEMONSTRATION MODE
+Create a clearly labelled Demo Mode.
+
+It must allow judges to test the Shopkeeper Portal without a backend or Student Portal connection.
+
+Sample dataset
+Generate fictional jobs with:
+
+Different document names.
+
+B&W and colour modes.
+
+Different copy counts.
+
+Different durations.
+
+Multiple queued jobs.
+
+One currently printing job.
+
+Ready-for-pickup jobs.
+
+At least one pending urgent request.
+
+At least one completed job.
+
+A fictional sample PDF available for preview.
+
+Use deterministic seeded data rather than random values on every refresh.
+
+Guided scenarios
+Scenario A — Queue management
+Open the queue.
+
+View jobs.
+
+Move a job upward.
+
+Show changed queue position.
+
+Show recalculated ETA.
+
+Scenario B — Urgent job
+Select a queued job.
+
+Click Mark Urgent.
+
+Show impact preview.
+
+Display confirmation.
+
+Confirm.
+
+Show updated priority and ETA.
+
+Scenario C — Printer breakdown
+Open Printer Management.
+
+Pause printing.
+
+Show affected ETA information.
+
+Resume printing.
+
+Show updated estimates.
+
+Scenario D — Smart optimization
+Open Smart Optimization.
+
+Calculate suggested queue order.
+
+Show before/after comparison.
+
+Approve or cancel.
+
+Scenario E — Pickup
+Open QR Verification.
+
+Scan a compatible demo QR or enter a valid fictional token.
+
+Verify its ready status.
+
+Confirm pickup.
+
+Mark job Collected.
+
+View it in Completed Orders.
+
+Demo reset
+Provide a Reset Demo button with confirmation.
+
+Never erase integrated real job data through a demo reset.
+
+All simulated actions must be clearly identified as local demonstrations.
+
+25. SHARED JOB DATA CONTRACT
+The Shopkeeper Portal must use the same data structures as the Student Portal.
+
+Before implementation, inspect any existing shared types and integration documentation.
+
+If authoritative shared definitions already exist, reuse them.
+
+Do not silently create incompatible replacements.
+
+Job model
+Include:
+
+id
+
+token
+
+documentName
+
+documentId
+
+originalFileName
+
+mimeType
+
+fileSize
+
+pageCount
+
+copies
+
+colorMode
+
+duplex
+
+paperSize
+
+instructions
+
+status
+
+priority
+
+urgentRequestStatus
+
+queuePosition
+
+estimatedCost
+
+estimatedDurationMinutes
+
+estimatedWaitMinutes
+
+estimatedPickupAt
+
+createdAt
+
+updatedAt
+
+Use explicit optional or nullable types for unavailable information.
+
+Do not use zero to represent an unknown ETA.
+
+Status values
+Use exactly:
+
+queued
+
+printing
+
+ready
+
+collected
+
+Colour values
+Use exactly:
+
+bw
+
+colour
+
+Urgent request values
+Use exactly:
+
+none
+
+pending
+
+approved
+
+rejected
+
+Printer state
+Use agreed values for:
+
+operational
+
+paused
+
+maintenance
+
+Store timestamps consistently using an agreed ISO 8601 representation.
+
+Document all numeric units.
+
+Shared service interface
+Provide typed operations for:
+
+getJobs()
+
+getJobById(id)
+
+getQueueSnapshot()
+
+getPrinterStatus()
+
+getDocument(documentId)
+
+updateJobStatus(jobId, status)
+
+reorderQueue(jobIds)
+
+getUrgentRequests()
+
+getUrgentImpactPreview(jobId)
+
+approveUrgentRequest(jobId)
+
+rejectUrgentRequest(jobId)
+
+markJobUrgent(jobId)
+
+getOptimizationPreview()
+
+applyOptimizedQueue()
+
+getSimulationResult()
+
+updatePrinterStatus()
+
+verifyPickupToken(token)
+
+markCollected(jobId)
+
+getAnalytics()
+
+subscribeToJobUpdates(callback)
+
+Methods must have typed request and response shapes.
+
+Do not invent backend endpoints that do not exist.
+
+If a method belongs to the shared team's code, create a clearly documented adapter or contract rather than duplicating its authoritative implementation.
+
+26. LOCAL DATA PERSISTENCE AND PORTAL INTEGRATION
+The website must support two modes.
+
+Mode A — Standalone Demo
+Requirements:
+
+Runs without backend.
+
+Uses fictional demo jobs.
+
+Persists local job changes.
+
+Supports queue reordering.
+
+Supports status updates.
+
+Supports urgent confirmation.
+
+Supports ETA calculations.
+
+Supports optimization and simulation.
+
+Supports manual token lookup.
+
+Supports locally available document files.
+
+Use IndexedDB for job and document records, with localStorage for simple preferences if appropriate.
+
+Mode B — Integrated Same-Origin Website
+The final Student and Shopkeeper portals should be hosted under the same local website origin.
+
+For example:
+
+http://localhost:5173/student
+
+http://localhost:5173/shopkeeper
+
+These are development route examples, not public hosted URLs.
+
+Use one shared database schema, queue engine, and document storage contract.
+
+When both portals are open in the same browser environment, changes should be reflected consistently through a shared data layer.
+
+Use BroadcastChannel or suitable storage notifications to inform other tabs when relevant data changes.
+
+BroadcastChannel is a notification mechanism, not a replacement for persistent storage or concurrency control.
+
+Use IndexedDB transactions and agreed mutation ownership to reduce inconsistent writes.
+
+Handle stale revisions or conflicting updates rather than silently overwriting changes.
+
+Important limitation: Browser-local storage cannot automatically synchronize across different phones, browser profiles, or website origins.
+
+Do not describe this demo as real cross-device synchronization.
+
+If a separate communication service is added later, it must remain optional and must not break the required browser-only demonstration.
+
+27. WEBSITE SECURITY
+Implement secure-by-design frontend practices.
+
+Input validation
+Validate all inputs.
+
+Use strict allowed ranges for numeric fields.
+
+Enforce text length limits.
+
+Reject malformed identifiers.
+
+Never trust localStorage or IndexedDB data blindly.
+
+Validate persisted records when loading.
+
+Render untrusted text safely.
+
+Avoid using dangerouslySetInnerHTML with untrusted data.
+
+Document safety
+Validate file type and size.
+
+Restrict supported formats.
+
+Use file signature checks where practical.
+
+Never execute uploaded documents.
+
+Do not load arbitrary user-provided HTML.
+
+Preview only supported file formats.
+
+Avoid unsafe URL construction.
+
+Clean up temporary object URLs.
+
+Handle missing or malformed file contents.
+
+Do not falsely claim malware scanning or complete document safety.
+
+Token verification
+Validate QR payload format.
+
+Verify token existence.
+
+Ensure the associated job is ready.
+
+Prevent duplicate collection.
+
+Use unpredictable token identifiers where appropriate.
+
+Do not embed document contents or personal data into QR codes.
+
+Data protection
+Do not request unnecessary student personal information.
+
+Do not expose documents through public static directories.
+
+Avoid logging document contents.
+
+Do not store passwords or API secrets.
+
+Provide clear demo-data reset controls.
+
+Handle local storage failures gracefully.
+
+Authorization limitations
+The official prototype does not require authentication.
+
+Therefore, frontend-only role navigation is NOT secure authorization.
+
+Do not claim students are technically prevented from opening the Shopkeeper route if no backend authorization exists.
+
+Keep administrative controls within the Shopkeeper interface, but document that actual role protection requires server-side authentication and authorization in a future production system.
+
+Dependency safety
+Prefer maintained packages.
+
+Use a dependency lockfile.
+
+Avoid unnecessary dependencies.
+
+Run npm audit.
+
+Investigate reported vulnerabilities.
+
+Do not blindly use force-install flags.
+
+Browser security
+Avoid executing untrusted HTML.
+
+Avoid loading scripts from untrusted sources.
+
+Provide Content Security Policy guidance for a future HTTP deployment.
+
+Handle malicious or corrupted persisted data.
+
+Do not disclose sensitive information through error messages.
+
+Do not claim that browser-only storage provides production-level security.
+
+Document all remaining risks honestly.
+
+28. ERROR HANDLING
+Handle at least these cases:
+
+Empty queue.
+
+Invalid job ID.
+
+Unknown token.
+
+Missing document.
+
+Unsupported document format.
+
+Failed file preview.
+
+Failed document download.
+
+Invalid queue movement.
+
+Invalid status transition.
+
+Duplicate status update.
+
+Printer under maintenance.
+
+Urgent request already pending.
+
+Urgent request already approved.
+
+Invalid priority change.
+
+Queue modified during confirmation.
+
+Optimization produces no improvement.
+
+Simulation contains invalid parameters.
+
+Camera unavailable.
+
+Camera permission denied.
+
+QR scan fails.
+
+Local storage unavailable.
+
+Storage quota exceeded.
+
+Corrupt persisted records.
+
+Browser refresh.
+
+Multiple open tabs.
+
+Conflicting queue updates.
+
+Shared integration unavailable.
+
+Empty analytics dataset.
+
+Every error must produce appropriate, understandable feedback.
+
+Do not silently fail.
+
+Do not display success before the relevant operation completes.
+
+29. ACCESSIBILITY AND RESPONSIVENESS
+The website must work on:
+
+Desktop Chrome.
+
+Desktop Firefox.
+
+Modern Chromium browsers.
+
+Android mobile browsers.
+
+Requirements:
+
+Responsive page layouts.
+
+Keyboard-accessible navigation.
+
+Accessible buttons.
+
+Clear labels.
+
+Proper modal focus management.
+
+Screen-reader-compatible status updates.
+
+Accessible table alternatives on mobile.
+
+Clear focus indicators.
+
+Sufficient text contrast.
+
+Appropriate touch target sizes.
+
+Reduced-motion support.
+
+No overlapping elements.
+
+No horizontal overflow on narrow screens.
+
+Use understandable wording for shopkeepers who are not technically experienced.
+
+30. TESTING REQUIREMENTS
+Implement automated tests with Vitest and React Testing Library.
+
+Queue tests
+Jobs display correctly.
+
+Queue position is correct.
+
+Reordering works.
+
+Invalid movements are rejected.
+
+Jobs are not duplicated.
+
+Queue changes persist.
+
+Completed jobs are excluded from active printing workload.
+
+Status tests
+Queued → Printing succeeds.
+
+Printing → Ready succeeds.
+
+Ready → Collected succeeds.
+
+Invalid transitions fail.
+
+Duplicate updates are prevented.
+
+ETA tests
+B&W calculations are correct.
+
+Colour calculations are correct.
+
+Multiple copies calculate correctly.
+
+Current printing work is considered.
+
+Reordering changes ETA correctly.
+
+Urgency approval recalculates ETA.
+
+Maintenance delays are handled.
+
+Unknown ETAs remain unavailable rather than displaying false values.
+
+Urgency tests
+Confirmation appears.
+
+Cancel makes no changes.
+
+Approve applies the expected order.
+
+Reject preserves the queue.
+
+Duplicate requests are blocked.
+
+Impact figures are calculated correctly.
+
+Optimization tests
+Optimization uses correct processing durations.
+
+Urgent priority is respected.
+
+Queue fairness constraints are respected.
+
+Comparison values are accurate.
+
+No-change results are handled.
+
+Cancellation preserves the original order.
+
+Simulation tests
+Simulation never mutates the original queue.
+
+Hypothetical jobs are clearly identified.
+
+ETA differences are correct.
+
+Stale simulations cannot overwrite newer queue versions.
+
+Document tests
+Supported files open where supported.
+
+Unsupported previews are handled.
+
+Missing files produce clear feedback.
+
+Malformed records are rejected.
+
+Document blobs persist in demo mode.
+
+QR tests
+Valid tokens identify jobs.
+
+Invalid tokens fail.
+
+Incorrect QR payloads fail.
+
+Collection requires Ready status.
+
+Repeated collection is blocked.
+
+Pricing and EcoPrint tests
+Cost calculations are correct.
+
+Duplex sheet calculations are correct.
+
+Printing sides are not confused with physical sheets.
+
+Analytics totals match stored records.
+
+Security-oriented tests
+HTML/script-like input is rendered safely.
+
+Corrupted local storage does not crash the application.
+
+Invalid numeric inputs are rejected.
+
+Unsafe file types are not trusted.
+
+Unauthorized status transitions through the UI are blocked.
+
+Unexpected service responses are handled.
+
+Note that UI restrictions do not replace actual server-side authorization.
+
+Build verification
+Execute:
+
+TypeScript type checks.
+
+Automated tests.
+
+Production build.
+
+Dependency audit.
+
+Manual browser checks.
+
+Mobile responsive checks.
+
+Fix detected failures before final delivery.
+
+Only report tests as passed when they were actually executed.
+
+31. COMPLETE JUDGE DEMONSTRATION
+Prepare a guided end-to-end demonstration.
+
+Demo 1 — View print requests
+Open PrintQ Shopkeeper.
+
+View Dashboard.
+
+Open Print Queue.
+
+Inspect fictional submitted jobs.
+
+Show tokens, copies, print mode, and ETAs.
+
+Demo 2 — Update printing status
+Select a queued job.
+
+Start Printing.
+
+Observe its new status.
+
+Mark Ready.
+
+Observe queue and ETA updates.
+
+Demo 3 — Urgent priority
+Select an eligible queued job.
+
+Click Mark Urgent.
+
+Show calculated impact preview.
+
+Display confirmation dialog.
+
+Confirm.
+
+Show queue reordering.
+
+Show updated wait estimates.
+
+Demo 4 — Smart optimization
+Open Smart Optimization.
+
+Calculate a proposed order.
+
+Compare average waiting times.
+
+Inspect affected jobs.
+
+Confirm or cancel the optimization.
+
+Demo 5 — What-If Simulator
+Open Queue Simulator.
+
+Select a hypothetical scenario.
+
+Calculate revised queue estimates.
+
+Display before/after comparisons.
+
+Demonstrate that the real queue remains unchanged.
+
+Demo 6 — Printer breakdown
+Open Printer Management.
+
+Pause the printer.
+
+Show ETA warnings.
+
+Set an estimated downtime if desired.
+
+Resume printing.
+
+Show updated calculations.
+
+Demo 7 — QR pickup
+Open QR Verification.
+
+Scan a valid sample QR or enter its token.
+
+Verify the matching job.
+
+Confirm its Ready status.
+
+Mark Collected.
+
+Show the job in history.
+
+Demo 8 — Analytics and EcoPrint
+Open Analytics.
+
+Show job statistics.
+
+Show B&W vs Colour usage.
+
+Display queue workload.
+
+Open EcoPrint.
+
+Show calculated paper savings.
+
+Demo 9 — Integration
+Once both portals are merged into the same-origin website:
+
+Open Student Portal.
+
+Create a fictional printing request.
+
+Open Shopkeeper Portal in the same browser environment.
+
+Verify the submitted job appears.
+
+Change its status.
+
+Return to Student Portal.
+
+Verify the updated information.
+
+Do not claim this integrated scenario works until it has been tested against the shared data layer.
+
+32. DOCUMENTATION DELIVERABLES
+Create:
+
+README.md
+Include:
+
+Project overview.
+
+Technology stack.
+
+Features.
+
+Folder structure.
+
+Setup commands.
+
+Development commands.
+
+Browser requirements.
+
+Local demo instructions.
+
+Queue algorithm assumptions.
+
+Pricing assumptions.
+
+QR verification instructions.
+
+Error recovery instructions.
+
+Testing instructions.
+
+Judge demonstration guide.
+
+INTEGRATION.md
+Document:
+
+Job schema.
+
+Token format.
+
+QR payload format.
+
+Status transitions.
+
+Urgent request states.
+
+Queue order representation.
+
+ETA formulas.
+
+Pricing formulas.
+
+Printer states.
+
+Queue optimizer rules.
+
+Document storage references.
+
+Shared service methods.
+
+Update notification strategy.
+
+Conflict handling.
+
+Integration assumptions and limitations.
+
+SECURITY.md
+Document:
+
+Frontend security controls.
+
+File handling limitations.
+
+Browser storage limitations.
+
+Role authorization limitations.
+
+QR token limitations.
+
+Dependency security.
+
+Production security requirements.
+
+Include screenshots showing major features.
+
+Provide instructions for recording a short walkthrough if needed.
+
+33. IMPLEMENTATION SEQUENCE
+Work in this order.
+
+Phase 1 — Setup
+Inspect existing repository.
+
+Establish Shopkeeper Portal structure.
+
+Configure React, TypeScript, styling, routing, and tests.
+
+Create or reuse shared contracts.
+
+Build responsive navigation.
+
+Ensure the website starts.
+
+Phase 2 — Mandatory MVP
+Implement:
+
+Fictional sample jobs.
+
+Complete queue display.
+
+Job details.
+
+Status changes.
+
+Queue reordering.
+
+Urgent confirmation.
+
+Token and ETA display.
+
+Local persistence.
+
+Test the complete official judge workflow.
+
+Phase 3 — Smart features
+Implement:
+
+Dynamic ETA.
+
+Urgent requests.
+
+Urgent impact preview.
+
+Smart Queue Optimizer.
+
+What-If Simulator.
+
+Printer maintenance.
+
+Smart pickup windows.
+
+Phase 4 — Advanced features
+Implement:
+
+Document access.
+
+Quality checker.
+
+QR verification.
+
+Pricing.
+
+Digital receipts.
+
+EcoPrint.
+
+Analytics.
+
+Multilingual support.
+
+Phase 5 — UI and demo
+Improve dashboard design.
+
+Refine responsiveness.
+
+Add themes.
+
+Add loading and error states.
+
+Build guided judge demo.
+
+Verify accessibility.
+
+Phase 6 — Integration preparation
+Check compatibility with Student types.
+
+Check token format.
+
+Check queue algorithm behavior.
+
+Check pricing configuration.
+
+Check shared data storage assumptions.
+
+Export a reusable Shopkeeper Portal.
+
+Document integration requirements.
+
+Do not overwrite other teammates' code.
+
+Phase 7 — Testing and bug fixing
+Run TypeScript checks.
+
+Run automated tests.
+
+Run production build.
+
+Fix errors.
+
+Test complete judge scenarios.
+
+Test corrupt data.
+
+Test persistence.
+
+Test mobile layouts.
+
+Review security.
+
+Complete documentation.
+
+Do not stop at scaffolding or unfinished implementations.
+
+34. FINAL ACCEPTANCE CHECKLIST
+The project is complete only when:
+
+
+Shopkeeper Portal opens correctly.
+
+
+It works without a backend.
+
+
+No .env or secret keys are required.
+
+
+Local fictional jobs load correctly.
+
+
+Queue management works.
+
+
+Status changes work.
+
+
+Reordering works.
+
+
+Dynamic ETA calculations work.
+
+
+Urgent approval and rejection work.
+
+
+Mark Urgent always requires confirmation.
+
+
+Impact previews show genuine calculated differences.
+
+
+Smart Queue Optimizer works.
+
+
+Optimization requires confirmation.
+
+
+What-If Simulator works without mutating the real queue.
+
+
+Printer breakdown and recovery work.
+
+
+Smart pickup suggestions work.
+
+
+Document metadata and available files can be accessed.
+
+
+Document validation warnings work.
+
+
+Cost estimation is correct.
+
+
+QR token verification works.
+
+
+Manual token lookup works.
+
+
+Ready jobs can be collected.
+
+
+Digital receipts work.
+
+
+EcoPrint calculations are correct.
+
+
+Analytics use actual local data.
+
+
+English, Hindi, and Kannada switching works.
+
+
+Guided demo mode works.
+
+
+Browser storage persists supported records.
+
+
+Mobile and desktop layouts are responsive.
+
+
+No fake success notifications exist.
+
+
+Invalid operations are rejected safely.
+
+
+Security limitations are documented.
+
+
+TypeScript checks pass.
+
+
+Automated tests pass.
+
+
+Production build succeeds.
+
+
+README, INTEGRATION.md, and SECURITY.md are complete.
+
+
+Student Portal source files remain untouched.
+
+
+All five visible hackathon rules are satisfied.
+
+35. FINAL EXECUTION INSTRUCTIONS
+BUILD ONLY THE PRINTQ SHOPKEEPER PORTAL.
+
+Do not provide only a plan, mockup, partial code, or incomplete scaffold.
+
+Implement a real functional website and verify each feature.
+
+Follow these priorities:
+
+Strictly obey the official hackathon rules.
+
+Make the complete queue and status workflow work first.
+
+Implement urgency confirmation correctly.
+
+Preserve compatibility with the Student Portal.
+
+Implement the advanced queue optimization and simulation features.
+
+Support real local document handling.
+
+Use deterministic ETA, pricing, and environmental calculations.
+
+Build a professional, responsive UI.
+
+Follow secure frontend development practices.
+
+Ensure the standalone demo works without infrastructure.
+
+Run available tests and correct detected failures.
+
+Never fabricate real synchronization, printing, payments, or successful operations.
+
+After implementation, provide:
+
+Feature completion summary.
+
+Project file structure.
+
+Exact commands for running the website.
+
+Tests executed and their results.
+
+Known limitations.
+
+Security considerations.
+
+Remaining integration requirements.
+
+Judge demonstration script.
+
+Confirmation of compliance with the five visible hackathon constraints.
+
+FINAL OBJECTIVE: Deliver a polished, functional, secure-by-design PrintQ Shopkeeper Portal that intelligently manages printing queues, optimizes waiting times, handles urgent requests transparently, manages printer interruptions, accesses available documents, verifies QR pickup tokens, and provides useful analytics — while remaining a browser-first website that requires no external hosting, paid APIs, credentials, or mandatory database setup

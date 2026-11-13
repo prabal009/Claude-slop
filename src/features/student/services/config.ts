@@ -1,0 +1,15 @@
+export const MAX_FILE_BYTES = 10 * 1024 * 1024;
+export const MAX_IMAGE_PREVIEW_PIXELS = 16_000_000;
+export const MAX_IMAGE_PREVIEW_EDGE = 8192;
+export const MAX_COPIES = 100;
+export const MAX_NAME_CODE_POINTS = 120;
+export const MAX_PAGES = 10000;
+export const MAX_INSTRUCTIONS_CODE_POINTS = 500;
+export const PAPER_SIZE = "A4" as const;
+export const PRICE_PER_SIDE = { bw: 2, colour: 10 } as const;
+export const SETUP_SECONDS = 60;
+export const SECONDS_PER_SIDE = { bw: 24, colour: 48 } as const;
+export const PICKUP_BUFFER_MINUTES = 15;
+export const DEMO_SHOP_NAME = "Campus Demo Print Desk";
+export const LOCAL_DATABASE_NAME = "printq-local-demo-v1";
+export const LOCAL_SCHEMA_VERSION = 1;

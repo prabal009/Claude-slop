@@ -1,0 +1,624 @@
+<!doctype html>
+<html lang="en" data-surface="landing">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#27227d">
+<meta name="description" content="A little order for the campus print counter. Explore PrintQ's browser-local queue demonstration and Shopkeeper Portal.">
+<title>PrintQ — A little order. A lot of pages.</title>
+<style>
+/* Surface isolation. System typography keeps this file completely self-contained. */
+html[data-surface="landing"]{scroll-behavior:smooth;background:#eff3f4}
+html[data-surface="landing"] body{margin:0}
+#landing{--ink:#192d4b;--indigo:#383398;--teal:#087b80;--paper:#eff3f4;--pink:#eda8c4;font-family:"Trebuchet MS",Arial,sans-serif;color:var(--ink);font-size:16px;line-height:1.6;overflow:clip}
+#landing *,#landing *::before,#landing *::after{box-sizing:border-box}
+#landing[hidden],#landing [hidden],html[data-surface="landing"] #root[hidden]{display:none!important}
+#landing a{color:inherit;text-underline-offset:5px}
+#landing button,#landing select{font:inherit}
+#landing button,#landing a,#landing select,#landing summary{-webkit-tap-highlight-color:transparent}
+#landing button,#landing select,#landing summary{cursor:pointer}
+#landing button:disabled{cursor:not-allowed;opacity:.45}
+#landing :focus-visible{outline:3px solid #ed689e;outline-offset:5px}
+#landing h1,#landing h2,#landing h3,#landing p{margin:0}
+#landing h1,#landing h2,#landing h3{font-weight:800;line-height:1.04;letter-spacing:-.055em}
+#landing h2{font-size:clamp(38px,5.2vw,72px)}
+#landing h3{font-size:25px;letter-spacing:-.035em}
+#landing p{max-width:63ch}
+#landing .wrap{width:min(1240px,calc(100% - 96px));margin-inline:auto}
+#landing .button{display:inline-flex;align-items:center;justify-content:center;gap:14px;min-height:50px;padding:12px 22px;border:1px solid transparent;border-radius:7px;text-decoration:none;font-weight:700;line-height:1.3;transition:background .2s,transform .2s}
+#landing .button:hover{transform:translateY(-2px)}
+#landing .button.primary{background:#f0f8f5;color:#20265d;box-shadow:0 3px 0 #b2d7d2}
+#landing .button.dark{background:#302b87;color:#fff}
+#landing .text-link{display:inline-flex;min-height:44px;align-items:center;font-weight:700}
+#landing .actions{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+#landing .skip{position:fixed;top:10px;left:10px;z-index:20;padding:12px;background:white;color:#162d4b;transform:translateY(-150%)}
+#landing .skip:focus{transform:none}
+#landing .portal-note{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:30;width:min(520px,calc(100% - 32px));background:#fff;color:#192d4b;padding:20px 52px 20px 22px;border:2px solid #087b80;border-radius:8px;box-shadow:0 10px 50px #10234440}
+#landing .portal-note button{position:absolute;top:8px;right:8px;width:44px;height:44px;border:0;background:none;font-size:24px;color:inherit}
+/* 1. The ink room: semantic type remains the complete static fallback. */
+#landing .hero{position:relative;isolation:isolate;min-height:940px;color:#f7fcff;background:linear-gradient(128deg,#252071 0%,#30329d 42%,#114b79 79%,#087c80 100%);overflow:hidden}
+#landing .hero::before{content:"";position:absolute;inset:0;z-index:-1;opacity:.16;background-image:radial-gradient(#b7e5ef .65px,transparent .9px);background-size:5px 5px;mask-image:linear-gradient(115deg,black,transparent 70%)}
+#landing .masthead{display:flex;align-items:center;justify-content:space-between;gap:24px;min-height:100px;border-bottom:1px solid #d7e8ff30;position:relative;z-index:3}
+#landing .brand{display:inline-flex;align-items:center;gap:10px;font-size:27px;font-weight:800;letter-spacing:-1.4px;text-decoration:none;white-space:nowrap}
+#landing .brand-mark{display:inline-grid;grid-template-columns:repeat(2,8px);gap:3px;transform:rotate(-8deg)}
+#landing .brand-mark i{display:block;width:8px;height:15px;background:#c3f1e6}
+#landing .brand-mark i:nth-child(2){background:var(--pink);transform:translateY(5px)}
+#landing .navlinks{display:flex;gap:26px;align-items:center;font-size:14px}
+#landing .navlinks a{text-decoration:none;min-height:44px;display:inline-flex;align-items:center}
+#landing .navlinks a:hover{text-decoration:underline}
+#landing .motion-toggle{display:flex;align-items:center;gap:8px;min-height:44px;padding:6px 12px;border:1px solid #d4e7ff60;border-radius:6px;background:transparent;color:inherit;font-size:12px;white-space:nowrap}
+#landing .hero-copy{position:relative;z-index:2;text-align:center;padding-top:62px}
+#landing .intro{font-size:15px;letter-spacing:.025em;margin:auto auto 25px!important;color:#d4e5f4}
+#landing h1{font-size:clamp(58px,8.6vw,132px);line-height:.98;letter-spacing:-.065em;max-width:1160px;margin:auto;text-wrap:balance}
+#landing h1 span{display:block}
+#landing .shader-ready h1{color:transparent}
+#landing .hero-description{font-size:18px;line-height:1.7;max-width:530px;margin:26px auto!important;color:#e2edf8}
+#landing .hero .actions{justify-content:center}
+#landing .hero .text-link{color:#e0faf6}
+#landing .local-caption{margin:18px auto!important;color:#d1e4ed;font-size:12px}
+#landing .hero-canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1;opacity:0}
+#landing .shader-ready .hero-canvas{opacity:1}
+#landing .paper-fallback{position:absolute;bottom:56px;left:50%;width:660px;height:230px;transform:translateX(-50%);z-index:0}
+#landing .paper-fallback i{position:absolute;left:50px;top:22px;width:480px;height:165px;border-radius:3px 40px 4px 8px;background:repeating-linear-gradient(0deg,transparent 0 14px,#3c4a8b30 14px 16px),linear-gradient(120deg,#d3e2f9,#fff 47%,#b6dedb);box-shadow:0 18px 40px #10224940;transform:rotate(-13deg) skewX(14deg)}
+#landing .paper-fallback i:nth-child(2){transform:rotate(11deg) skewX(-10deg);top:60px;left:120px;background:repeating-linear-gradient(0deg,transparent 0 15px,#26207133 15px 17px),linear-gradient(100deg,#b2e3dc,#eff7fe 60%,#c7b5e4)}
+#landing .paper-fallback i:nth-child(3){height:65px;top:130px;left:10px;transform:rotate(-8deg);background:linear-gradient(100deg,#e8acd0,#e6e0ef 65%,#77cbc5)}
+#landing .shader-ready .paper-fallback{visibility:hidden}
+#landing .hero-bottom{position:absolute;bottom:29px;left:0;right:0;display:flex;justify-content:space-between;align-items:center;gap:20px;font-size:13px;color:#d4ecf0;z-index:2}
+#landing .hero-bottom .swatches{display:flex;gap:6px}
+#landing .swatches i{height:11px;width:11px;background:#a0dfd7}
+#landing .swatches i:nth-child(2){background:#ec9cc0}
+#landing .swatches i:nth-child(3){background:#e5edfa}
+#landing .hero-bottom a{display:flex;gap:12px;align-items:center;text-decoration:none;min-height:44px}
+/* 2. A real, isolated queue calculation, not a product screenshot. */
+#landing .queue-section{padding:110px 0 100px;background:linear-gradient(155deg,#f3f6fa,#e7efef 70%,#dcece8)}
+#landing .section-heading{display:flex;justify-content:space-between;align-items:flex-end;gap:44px;margin-bottom:46px}
+#landing .section-heading h2{max-width:650px}
+#landing .section-heading p{max-width:360px;font-size:16px;color:#4e6175}
+#landing .queue-layout{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(260px,1fr);border:1px solid #b9cbd0;border-radius:12px;overflow:hidden;box-shadow:0 20px 60px #193b5b09;background:#fbfdfd}
+#landing .queue-board{padding:30px;min-width:0}
+#landing .board-heading{display:flex;justify-content:space-between;gap:18px;align-items:center;margin-bottom:22px}
+#landing .board-heading h3{font-size:20px}
+#landing .segmented{display:flex;border:1px solid #b8c7d1;border-radius:6px;padding:3px;gap:3px}
+#landing .segmented button{min-height:44px;padding:7px 14px;color:#33465c;border:0;border-radius:4px;background:transparent;font-size:13px;font-weight:700}
+#landing .segmented button[aria-pressed="true"]{background:#302b87;color:white}
+#landing .queue-labels{display:grid;grid-template-columns:minmax(0,1fr) 75px 80px;gap:10px;font-size:11px;color:#5b6d7c;padding:0 0 10px 42px}
+#landing .queue-labels span:not(:first-child){text-align:right}
+#landing .job-list{list-style:none;padding:0;margin:0;display:grid;gap:12px}
+#landing .job{display:grid;grid-template-columns:30px minmax(0,1fr) 75px 80px;gap:12px;align-items:center;border:1px solid #d7e1e5;border-left:3px solid #b4c1d1;border-radius:6px;padding:17px 12px;background:white}
+#landing .job.urgent{border-left-color:#087b80;background:#eef9f5}
+#landing .job-number{font-size:14px;font-weight:700;color:#6c7892}
+#landing .job-title{font-size:14px;font-weight:700;line-height:1.4}
+#landing .job-meta{display:block;font-size:11px;color:#607282;margin-top:5px;line-height:1.5}
+#landing .job-time{text-align:right;font-variant-numeric:tabular-nums;font-size:14px;font-weight:700}
+#landing .job-change{display:block;font-size:10px;line-height:1.4;font-weight:400;white-space:normal;margin-top:3px}
+#landing .job-change.later{color:#99502b}
+#landing .job-change.earlier{color:#087264}
+#landing .workload{display:flex;justify-content:space-between;gap:14px;padding-top:20px;font-size:12px;color:#536879}
+#landing .queue-controls{padding:30px;background:#e8eef7;border-left:1px solid #c7d3df;display:flex;flex-direction:column;align-items:stretch;gap:17px}
+#landing .simulation-label{font-size:12px;color:#53647d}
+#landing .queue-controls label{font-size:13px;font-weight:700}
+#landing .queue-controls select{display:block;width:100%;min-height:48px;padding:10px 12px;margin-top:8px;border:1px solid #adbed1;border-radius:5px;background:white;color:#263f5c;font-size:14px}
+#landing .queue-controls .button{width:100%;font-size:13px}
+#landing .secondary-controls{display:flex;gap:10px}
+#landing .secondary-controls button{flex:1;border:1px solid #acbdd0;border-radius:5px;padding:10px;min-height:48px;background:transparent;color:#263b57;font-size:12px}
+#landing .demo-status{min-height:105px;font-size:13px;color:#374e69;line-height:1.7}
+#landing .formula{margin-top:24px!important;font-size:12px;color:#5a6d7e;max-width:none!important}
+#landing .formula code{font-family:inherit;font-weight:700}
+/* 3. File-to-counter workflow, a keyboard-controlled printing ticket. */
+#landing .workflow{padding:105px 0;background:#143f63;color:#eff8f9;position:relative;isolation:isolate;overflow:hidden}
+#landing .workflow::before{content:"";position:absolute;width:900px;height:900px;border:120px solid #4f9c9a22;border-radius:48%;right:-470px;top:-400px;transform:rotate(25deg);z-index:-1}
+#landing .workflow-layout{display:grid;grid-template-columns:1.06fr 1fr;gap:100px;align-items:center}
+#landing .workflow h2{max-width:520px}
+#landing .workflow-lede{margin:24px 0 32px!important;color:#c4dce5}
+#landing .tabs{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid #a0c2d14d;margin:25px 0}
+#landing .tabs button{min-height:64px;background:transparent;border:0;border-bottom:3px solid transparent;color:#b8cfdf;font-size:13px;padding:10px 7px}
+#landing .tabs button[aria-selected="true"]{color:#fff;border-bottom-color:#8ce3d1}
+#landing .tabs button span{display:block;font-size:10px;opacity:.7}
+#landing .stage-copy{min-height:180px}
+#landing .stage-copy h3{font-size:26px;margin-bottom:12px}
+#landing .stage-copy p{font-size:15px;color:#c8dde7;margin-bottom:12px}
+#landing .ticket-wrap{position:relative;padding:24px 22px 35px 0}
+#landing .ticket-wrap::before{content:"";position:absolute;inset:40px 0 10px 30px;background:linear-gradient(130deg,#72c6c3,#7775bd);transform:rotate(7deg);border-radius:5px}
+#landing .ticket{position:relative;transform:rotate(-4deg);background:#eff8f4;color:#1d3c54;padding:37px 32px 30px;box-shadow:12px 22px 0 #102e4c33;clip-path:polygon(0 0,100% 0,100% 97%,95% 100%,90% 97%,85% 100%,80% 97%,75% 100%,70% 97%,65% 100%,60% 97%,55% 100%,50% 97%,45% 100%,40% 97%,35% 100%,30% 97%,25% 100%,20% 97%,15% 100%,10% 97%,5% 100%,0 97%)}
+#landing .ticket-top{display:flex;justify-content:space-between;border-bottom:1px dashed #9bb6be;padding-bottom:20px;font-size:12px}
+#landing .ticket-top strong{font-size:24px;letter-spacing:-1px}
+#landing .ticket-file{margin:28px 0!important;font-size:27px;line-height:1.15;font-weight:800;letter-spacing:-1px}
+#landing .ticket-stages{display:grid;gap:12px}
+#landing .ticket-step{display:flex;align-items:center;gap:13px;padding:12px 0;border-bottom:1px solid #cededc;font-size:14px;opacity:.42}
+#landing .ticket-step.active{opacity:1;font-weight:700}
+#landing .ticket-step i{font-style:normal;display:grid;place-items:center;width:29px;height:29px;border:1px solid #75949b;border-radius:50%;font-size:11px}
+#landing .ticket-step.active i{background:#177f78;border-color:#177f78;color:#fff}
+#landing .ticket-foot{display:flex;justify-content:space-between;align-items:center;padding-top:20px;gap:20px;font-size:11px}
+#landing .ticket-bars{width:92px;height:25px;background:repeating-linear-gradient(90deg,#23465c 0 2px,transparent 2px 5px,#23465c 5px 6px,transparent 6px 9px);opacity:.65}
+/* 4. Different operational tools, deliberately different proportions. */
+#landing .features{padding:110px 0;background:#edf2f7}
+#landing .feature-grid{display:grid;grid-template-columns:1.15fr 1fr;gap:24px;align-items:start}
+#landing .feature-main{min-height:520px;padding:40px;background:linear-gradient(145deg,#39318e,#214d7d 70%,#177c83);color:#fff;border-radius:10px;position:relative;overflow:hidden}
+#landing .feature-main h3{font-size:39px;max-width:350px;position:relative;z-index:1}
+#landing .feature-main p{margin:18px 0!important;color:#dce8f6;max-width:360px;position:relative;z-index:1}
+#landing .feature-main a{position:relative;z-index:1}
+#landing .queue-art{height:210px;position:relative;margin-top:24px;transform:translateX(var(--shift,0px));transition:transform .25s ease-out}
+#landing .queue-art div{position:absolute;background:#f5f9fb;color:#29435b;border:1px solid #cdddeb;padding:15px 20px;width:87%;border-radius:5px;box-shadow:0 15px 20px #14235322;display:flex;justify-content:space-between;gap:10px;font-size:13px}
+#landing .queue-art div:nth-child(1){top:0;left:7%;transform:rotate(-7deg)}
+#landing .queue-art div:nth-child(2){top:64px;left:3%;transform:rotate(4deg);background:#c5e9df}
+#landing .queue-art div:nth-child(3){top:128px;left:9%;transform:rotate(-3deg)}
+#landing .feature-tools{border-top:2px solid #b3c4d4}
+#landing .tool{border-bottom:1px solid #bdccd9}
+#landing .tool summary{list-style:none;padding:24px 4px;min-height:82px;display:flex;align-items:center;justify-content:space-between;gap:20px;font-weight:700;font-size:22px;letter-spacing:-.7px}
+#landing .tool summary::-webkit-details-marker{display:none}
+#landing .tool summary::after{content:"+";font-size:25px;font-weight:400;color:#5e7193}
+#landing .tool[open] summary::after{content:"−"}
+#landing .tool-content{padding:0 34px 24px 4px}
+#landing .tool-content p{font-size:14px;color:#53687f}
+#landing .tool-content a{margin-top:10px;font-size:14px;color:#343286}
+#landing .feature-footnote{display:flex;align-items:center;gap:18px;margin-top:26px!important;font-size:12px;color:#576b7c}
+#landing .ink-dots{flex-shrink:0;display:flex}
+#landing .ink-dots i{width:15px;height:15px;background:#4aa5b3;border-radius:50%;mix-blend-mode:multiply}
+#landing .ink-dots i:nth-child(2){background:#e6a5c9;margin-left:-5px}
+#landing .ink-dots i:nth-child(3){background:#8a89cf;margin-left:-5px}
+/* 5. Clear answers, an honest invitation, and the end of the paper roll. */
+#landing .closing{background:linear-gradient(155deg,#e3eeee,#f6f5f7 45%,#e8e8f5);padding:90px 0 0}
+#landing .faq-layout{display:grid;grid-template-columns:.7fr 1.3fr;gap:80px;padding-bottom:90px}
+#landing .faq-layout h2{font-size:clamp(36px,4vw,56px)}
+#landing .faq-layout>div>p{margin-top:20px!important;color:#5b6c80;font-size:14px}
+#landing .faq{border-top:1px solid #afc1cc}
+#landing .faq details{border-bottom:1px solid #bdcbd5}
+#landing .faq summary{padding:22px 25px 22px 0;min-height:68px;font-weight:700;line-height:1.5}
+#landing .faq details p{font-size:14px;color:#4f6275;padding:0 22px 23px 0}
+#landing .closing-cta{position:relative;padding:65px 70px 70px;background:linear-gradient(115deg,#302779,#363c94 53%,#0c6c78);color:#f1fcf9;border-radius:14px 14px 0 0;overflow:hidden}
+#landing .closing-cta::after{content:"";position:absolute;right:-110px;bottom:-225px;width:480px;height:480px;border:60px solid #b0e0da25;border-radius:42%;transform:rotate(-25deg);pointer-events:none}
+#landing .closing-cta h2{font-size:clamp(42px,5.5vw,76px);max-width:760px}
+#landing .closing-cta p{margin:21px 0 28px!important;color:#d5e5ee;max-width:540px}
+#landing .footer{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:30px 0;color:#546478;font-size:12px}
+#landing .footer .brand{font-size:22px;color:#302b73}
+#landing .footer a{min-height:44px;display:inline-flex;align-items:center}
+#landing .footer p{font-size:11px;text-align:right}
+@media(min-width:1600px){#landing .hero{min-height:1020px}#landing .hero-copy{padding-top:85px}}
+@media(max-width:1000px){#landing .wrap{width:calc(100% - 56px)}#landing .navlinks{gap:18px}#landing .navlinks .optional{display:none}#landing .workflow-layout{gap:50px}#landing .section-heading{gap:30px}#landing .queue-board{padding:22px}#landing .queue-controls{padding:24px}#landing .faq-layout{gap:50px}#landing .closing-cta{padding:55px 45px}}
+@media(max-width:760px){#landing .wrap{width:calc(100% - 40px)}#landing .masthead{min-height:82px;gap:12px}#landing .brand{font-size:24px}#landing .navlinks{gap:12px}#landing .navlinks>a{display:none}#landing .motion-toggle{font-size:11px}#landing .hero{min-height:860px}#landing .hero-copy{padding-top:55px}#landing .intro{font-size:12px;margin-bottom:24px!important}#landing h1{font-size:clamp(45px,10.2vw,76px);letter-spacing:-.06em}#landing .hero-description{font-size:15px;max-width:360px;margin:24px auto!important}#landing .hero .actions{gap:8px}#landing .hero .button{font-size:14px}#landing .local-caption{font-size:11px;max-width:270px!important}#landing .paper-fallback{bottom:75px;transform:translateX(-50%) scale(.78)}#landing .hero-bottom{font-size:11px;gap:12px}#landing .hero-bottom>span{max-width:160px}#landing .hero-bottom .swatches{display:none}#landing .queue-section,#landing .features{padding:72px 0}#landing .section-heading{display:block;margin-bottom:30px}#landing .section-heading p{margin-top:22px!important;max-width:460px}#landing h2{font-size:clamp(37px,8vw,56px)}#landing .queue-layout{grid-template-columns:1fr}#landing .queue-controls{border-left:0;border-top:1px solid #c7d3df;gap:16px}#landing .demo-status{min-height:0}#landing .workflow{padding:72px 0}#landing .workflow-layout{grid-template-columns:1fr;gap:20px}#landing .stage-copy{min-height:170px}#landing .ticket-wrap{max-width:460px;width:100%;margin:auto;padding:10px 18px 28px 5px}#landing .ticket{padding:25px}#landing .ticket-file{font-size:24px}#landing .feature-grid{grid-template-columns:1fr;gap:32px}#landing .feature-main{padding:30px;min-height:470px}#landing .feature-main h3{font-size:35px}#landing .feature-main p{font-size:14px}#landing .queue-art{height:190px}#landing .closing{padding-top:70px}#landing .faq-layout{grid-template-columns:1fr;gap:30px;padding-bottom:65px}#landing .closing-cta{padding:40px 26px 45px}#landing .closing-cta h2{font-size:44px}#landing .closing-cta p{font-size:14px}#landing .footer{flex-wrap:wrap;gap:12px;padding:25px 0}#landing .footer p{width:100%;text-align:left}}
+@media(max-width:380px){#landing .wrap{width:calc(100% - 32px)}#landing .hero{min-height:840px}#landing .brand{font-size:23px}#landing h1{font-size:clamp(37px,10.3vw,44px)}#landing .hero-copy{padding-top:48px}#landing .hero-description{font-size:14px}#landing .hero .actions{flex-direction:column}#landing .hero .text-link{font-size:14px}#landing .hero-bottom>span{max-width:135px}#landing .paper-fallback{transform:translateX(-50%) scale(.6);bottom:70px}#landing .queue-board{padding:20px 13px}#landing .board-heading{gap:8px}#landing .board-heading h3{font-size:17px}#landing .segmented button{padding:7px 10px;font-size:11px}#landing .job{grid-template-columns:18px minmax(0,1fr) 44px 59px;gap:6px;padding:14px 8px}#landing .job-title{font-size:12px}#landing .job-time{font-size:12px}#landing .job-meta{font-size:10px}#landing .queue-labels{grid-template-columns:minmax(0,1fr) 44px 59px;padding-left:27px;font-size:10px;gap:6px}#landing .workload{font-size:10px}#landing .queue-controls{padding:22px}#landing .ticket{padding:24px 20px}#landing .tabs button{font-size:11px}#landing .closing-cta{padding:34px 22px}#landing .closing-cta h2{font-size:38px}}
+@media(prefers-reduced-motion:reduce){html[data-surface="landing"]{scroll-behavior:auto}#landing *,#landing *::before,#landing *::after{transition:none!important;animation:none!important}}
+#landing.motion-paused *,#landing.motion-paused *::before,#landing.motion-paused *::after{transition:none!important;animation-play-state:paused!important}
+/* Give the mobile paper scene its own room below wrapped copy. */
+@media(max-width:760px){#landing .hero{min-height:1040px}#landing .paper-fallback{bottom:85px}}
+</style>
+</head>
+<body>
+<div id="landing">
+<a class="skip" href="#queue-demo">Skip to interactive demo</a>
+<main>
+<!-- Section 1: the ink room / WebGL-enhanced, semantic headline. -->
+<section class="hero" id="top" aria-labelledby="hero-title">
+  <header class="masthead wrap">
+    <a class="brand" href="#top" aria-label="PrintQ home"><span class="brand-mark" aria-hidden="true"><i></i><i></i></span>PrintQ</a>
+    <nav class="navlinks" aria-label="Main navigation"><a href="#queue-demo">Try the queue</a><a class="optional" href="#workflow">How it works</a><a href="/shopkeeper">Shopkeeper Portal</a><button class="motion-toggle" id="motion-toggle" type="button" aria-pressed="false"><span aria-hidden="true">Ⅱ</span><span id="motion-label">Pause motion</span></button></nav>
+  </header>
+  <canvas class="hero-canvas" id="ink-canvas" aria-hidden="true"></canvas>
+  <div class="hero-copy wrap">
+    <p class="intro">For the campus print counter. And everyone waiting at it.</p>
+    <h1 id="hero-title"><span>Campus printing.</span><span>Without the chaos.</span></h1>
+    <p class="hero-description">Files coming in. Deadlines getting close. Keep the queue, the printer, and the next pickup on the same page.</p>
+    <div class="actions"><a class="button primary" href="/shopkeeper">Open Shopkeeper Portal <span aria-hidden="true">↗</span></a><a class="text-link" href="#queue-demo">Take the queue for a spin</a></div>
+    <p class="local-caption">A browser-local demonstration. Fictional jobs. Real, visible trade-offs.</p>
+  </div>
+  <div class="paper-fallback" aria-hidden="true"><i></i><i></i><i></i></div>
+  <div class="hero-bottom wrap"><span>A little order.<br>A lot of pages.</span><div class="swatches" aria-hidden="true"><i></i><i></i><i></i></div><a href="#queue-demo">Pull up the queue <span aria-hidden="true">↓</span></a></div>
+</section>
+<!-- Section 2: independent, memory-only priority simulation. -->
+<section class="queue-section" id="queue-demo" aria-labelledby="queue-title">
+<div class="wrap">
+  <div class="section-heading"><h2 id="queue-title">One urgent job.<br>Everyone feels it.</h2><p>Moving a job isn't magic. Someone gets their pages sooner; someone else waits. See both sides before you decide.</p></div>
+  <div class="queue-layout">
+    <div class="queue-board">
+      <div class="board-heading"><h3>At the print counter</h3><div class="segmented" role="group" aria-label="Queue comparison"><button type="button" id="show-before" aria-pressed="true">Before</button><button type="button" id="show-after" aria-pressed="false" disabled>After</button></div></div>
+      <div class="queue-labels" aria-hidden="true"><span>Fictional document</span><span>Print time</span><span>Wait</span></div>
+      <ol class="job-list" id="job-list" aria-label="Fictional print queue">
+        <li class="job"><span class="job-number">1</span><div class="job-title">Thesis draft<span class="job-meta">12 pages · 1 copy · B&amp;W</span></div><span class="job-time">5.8 m</span><span class="job-time">0.0 m</span></li>
+        <li class="job"><span class="job-number">2</span><div class="job-title">Studio portfolio<span class="job-meta">8 pages · 2 copies · Colour</span></div><span class="job-time">13.8 m</span><span class="job-time">5.8 m</span></li>
+        <li class="job"><span class="job-number">3</span><div class="job-title">Lab handout<span class="job-meta">6 pages · 1 copy · B&amp;W</span></div><span class="job-time">3.4 m</span><span class="job-time">19.6 m</span></li>
+      </ol>
+      <div class="workload"><span>One printer · three fictional jobs</span><strong>23.0 min of printing</strong></div>
+    </div>
+    <div class="queue-controls">
+      <p class="simulation-label">Try it here. Nothing is saved.</p>
+      <label for="urgent-job">Which job needs to go first?<select id="urgent-job"><option value="lab">Lab handout</option><option value="studio">Studio portfolio</option><option value="thesis">Thesis draft</option></select></label>
+      <button class="button dark" id="preview-queue" type="button">Preview urgent move</button>
+      <div class="demo-status" id="demo-status" role="status" aria-live="polite">Choose a job and preview its move. Compare every wait before confirming this simulation.</div>
+      <div class="secondary-controls"><button type="button" id="confirm-queue" disabled>Confirm in simulation</button><button type="button" id="reset-queue">Reset demo</button></div>
+    </div>
+  </div>
+  <p class="formula">Transparent estimates: <code>1 + pages × copies × (B&amp;W ? 0.4 : 0.8)</code> minutes per job. Wait is the sum of earlier jobs. This example assumes one available printer; it is not a physical-printer measurement. No saved portal jobs are read or changed.</p>
+  <noscript><p>This queue shows the starting order. Enable JavaScript to preview priority changes; the rest of this page remains readable.</p></noscript>
+</div>
+</section>
+<!-- Section 3: four-stage accessible tabbed workflow. -->
+<section class="workflow" id="workflow" aria-labelledby="workflow-title">
+<div class="wrap workflow-layout">
+  <div>
+    <h2 id="workflow-title">From “can you print this?” to “here you go.”</h2>
+    <p class="workflow-lede">A clear next step for each job, all the way across the counter.</p>
+    <div class="tabs" role="tablist" aria-label="Printing workflow">
+      <button role="tab" id="tab-0" aria-controls="workflow-panel" aria-selected="true" tabindex="0" data-stage="0"><span>01</span>Receive</button>
+      <button role="tab" id="tab-1" aria-controls="workflow-panel" aria-selected="false" tabindex="-1" data-stage="1"><span>02</span>Sequence</button>
+      <button role="tab" id="tab-2" aria-controls="workflow-panel" aria-selected="false" tabindex="-1" data-stage="2"><span>03</span>Print</button>
+      <button role="tab" id="tab-3" aria-controls="workflow-panel" aria-selected="false" tabindex="-1" data-stage="3"><span>04</span>Collect</button>
+    </div>
+    <div class="stage-copy" id="workflow-panel" role="tabpanel" aria-labelledby="tab-0" tabindex="0"><h3 id="stage-title">Start with the actual job.</h3><p id="stage-description">Inspect the document, page count, copies and print settings. Each fictional order has an identity, not just a place in a pile.</p><a class="text-link" id="stage-link" href="/shopkeeper/queue">Explore the print queue</a></div>
+  </div>
+  <div class="ticket-wrap" aria-hidden="true"><div class="ticket"><div class="ticket-top"><strong>PrintQ</strong><span>Sample job<br>Campus print counter</span></div><p class="ticket-file">The lab handout.<br>Six pages. One journey.</p><div class="ticket-stages"><div class="ticket-step active"><i>01</i>Document received</div><div class="ticket-step"><i>02</i>Queue position reviewed</div><div class="ticket-step"><i>03</i>Printed and marked ready</div><div class="ticket-step"><i>04</i>Token checked, pages collected</div></div><div class="ticket-foot"><span id="ticket-status">Viewing: receive</span><div class="ticket-bars"></div></div></div></div>
+</div>
+</section>
+<!-- Section 4: asymmetric features with direct, working operational routes. -->
+<section class="features" id="tools" aria-labelledby="tools-title">
+<div class="wrap">
+  <div class="section-heading"><h2 id="tools-title">The whole counter.<br>Not another spreadsheet.</h2><p>Open the tools behind the story. The portal is an interactive local demo, not a connected print-shop service.</p></div>
+  <div class="feature-grid">
+    <article class="feature-main" id="feature-paper"><h3>A queue you can actually explain.</h3><p>See job details, valid lifecycle steps and estimated waits together. Move through queued, printing, ready and collected deliberately.</p><a class="text-link" href="/shopkeeper/queue">Open the print queue</a><div class="queue-art" aria-hidden="true"><div><strong>Thesis draft</strong><span>Queued</span></div><div><strong>Lab handout</strong><span>Printing</span></div><div><strong>Lecture notes</strong><span>Ready for pickup</span></div></div></article>
+    <div class="feature-tools">
+      <details class="tool" open><summary>Compare before you commit</summary><div class="tool-content"><p>Rule-based optimization shows each affected wait. Longer jobs can wait more. Review the proposal before applying it; this is deterministic logic, not AI.</p><a class="text-link" href="/shopkeeper/optimization">Explore queue optimization</a></div></details>
+      <details class="tool"><summary>Know when the printer can't</summary><div class="tool-content"><p>Record a pause or breakdown and see estimates change. The demo tracks availability; it does not remotely control a physical printer.</p><a class="text-link" href="/shopkeeper/printers">Open printer management</a></div></details>
+      <details class="tool"><summary>Finish at the right hands</summary><div class="tool-content"><p>Verify a ready order's pickup token, then explicitly record handover. Camera scanning depends on permission and device support; manual token entry is available.</p><a class="text-link" href="/shopkeeper/pickup">Open pickup verification</a></div></details>
+      <p class="feature-footnote"><span class="ink-dots" aria-hidden="true"><i></i><i></i><i></i></span>One browser. One fictional shop. No accounts or payments.</p>
+    </div>
+  </div>
+</div>
+</section>
+<!-- Section 5: native FAQ, portal invitation and footer. -->
+<section class="closing" id="questions" aria-labelledby="questions-title">
+<div class="wrap">
+  <div class="faq-layout"><div><h2 id="questions-title">Before you<br>hit print.</h2><p>A few things worth knowing about this demonstration.</p></div><div class="faq">
+    <details><summary>Is this a real print-shop service?</summary><p>No. PrintQ is a browser-local demonstration for campus print-shop workflows, using fictional jobs and documents. It has no production authentication, payment processing or cross-device synchronization.</p></details>
+    <details><summary>Does this page change my portal queue?</summary><p>No. The landing-page queue is an isolated, memory-only simulation. Preview, confirmation and reset affect only the example here. The portal separately stores its demo jobs and documents in your browser.</p></details>
+    <details><summary>Is queue optimization powered by AI?</summary><p>No. It uses deterministic rules and transparent time estimates. The portal compares eligible jobs, protects applicable fairness constraints and asks for confirmation before changing order. A shorter wait for one job can mean a longer wait for another.</p></details>
+    <details><summary>Will it print or scan on my device?</summary><p>Physical printing uses your browser and device capabilities; queue status does not prove a print completed. Camera pickup scanning needs permission and a supported secure context. You can also enter a pickup token manually.</p></details>
+    <details><summary>Can I open this page offline?</summary><p>Yes. This single HTML file includes its own styles, visuals and demonstration. To use the separate Shopkeeper Portal, serve the project with npm run dev. The landing page makes no external requests and saves no job data.</p></details>
+  </div></div>
+  <div class="closing-cta"><h2>Less “where's my print?”<br>More “ready when you are.”</h2><p>Step behind the counter. Explore the fictional shop, inspect a job, and see what happens next.</p><div class="actions"><a class="button primary" href="/shopkeeper">Open Shopkeeper Portal <span aria-hidden="true">↗</span></a><a class="text-link" href="#queue-demo">Try the queue first</a></div></div>
+  <footer class="footer"><a class="brand" href="#top">PrintQ</a><a href="#questions">Demo details</a><p>Made for the campus print counter.<br>Fictional data. Browser-local by design.</p></footer>
+</div>
+</section>
+</main>
+<div class="portal-note" id="portal-note" role="status" hidden>Open this file through <strong>npm run dev</strong> to use the Shopkeeper Portal.<button type="button" id="dismiss-note" aria-label="Dismiss portal instructions">×</button></div>
+</div>
+<div id="root" hidden></div>
+<script>
+/* Route cutover runs before any landing effect or portal import. */
+(function () {
+  'use strict';
+  if (/^\/shopkeeper(?:\/|$)/.test(location.pathname)) {
+    document.documentElement.dataset.surface = 'portal';
+    document.getElementById('landing').hidden = true;
+    document.getElementById('root').hidden = false;
+    return;
+  }
+  var landing = document.getElementById('landing');
+  var lifetime = new AbortController();
+  function listen(target, type, fn, options) {
+    target.addEventListener(type, fn, Object.assign({ signal: lifetime.signal }, options));
+  }
+  var note = document.getElementById('portal-note');
+  listen(landing, 'click', function (event) {
+    var link = event.target.closest('a[href^="/shopkeeper"]');
+    if (link && location.protocol === 'file:') { event.preventDefault(); note.hidden = false; }
+  });
+  listen(document.getElementById('dismiss-note'), 'click', function () { note.hidden = true; });
+  listen(document, 'keydown', function (event) { if (event.key === 'Escape') note.hidden = true; });
+  /* Local arithmetic only: intentionally no portal adapter, IndexedDB or storage. */
+  var jobs = [
+    { id: 'thesis', name: 'Thesis draft', pages: 12, copies: 1, bw: true },
+    { id: 'studio', name: 'Studio portfolio', pages: 8, copies: 2, bw: false },
+    { id: 'lab', name: 'Lab handout', pages: 6, copies: 1, bw: true }
+  ];
+  var original = ['thesis', 'studio', 'lab'];
+  var current = original.slice(), before = current.slice(), proposal = null, showingAfter = false, confirmed = false;
+  var select = document.getElementById('urgent-job'), status = document.getElementById('demo-status');
+  var beforeButton = document.getElementById('show-before'), afterButton = document.getElementById('show-after');
+  var confirmButton = document.getElementById('confirm-queue');
+  function jobFor(id) { return jobs.find(function (job) { return job.id === id; }); }
+  function duration(job) { return 1 + job.pages * job.copies * (job.bw ? 0.4 : 0.8); }
+  function waits(order) {
+    var result = {}, elapsed = 0;
+    order.forEach(function (id) { result[id] = elapsed; elapsed += duration(jobFor(id)); });
+    return result;
+  }
+  function renderQueue() {
+    var order = showingAfter && proposal ? proposal : before;
+    var times = waits(order), oldTimes = waits(before);
+    beforeButton.setAttribute('aria-pressed', String(!showingAfter));
+    afterButton.setAttribute('aria-pressed', String(showingAfter));
+    afterButton.disabled = !proposal;
+    confirmButton.disabled = !proposal || confirmed || proposal.join() === before.join();
+    document.getElementById('job-list').innerHTML = order.map(function (id, index) {
+      var job = jobFor(id), delta = times[id] - oldTimes[id], change = '';
+      if (showingAfter && proposal) {
+        change = '<span class="job-change ' + (delta > 0.01 ? 'later' : 'earlier') + '">' +
+          (Math.abs(delta) < 0.01 ? 'Unchanged' : Math.abs(delta).toFixed(1) + ' min ' + (delta > 0 ? 'longer' : 'shorter')) + '</span>';
+      }
+      return '<li class="job' + (proposal && id === select.value && showingAfter ? ' urgent' : '') + '"><span class="job-number">' +
+        (index + 1) + '</span><div class="job-title">' + job.name + '<span class="job-meta">' + job.pages + ' pages · ' +
+        job.copies + (job.copies === 1 ? ' copy' : ' copies') + ' · ' + (job.bw ? 'B&amp;W' : 'Colour') +
+        '</span></div><span class="job-time" aria-label="Print time ' + duration(job).toFixed(1) + ' minutes">' +
+        duration(job).toFixed(1) + ' m</span><span class="job-time" aria-label="Wait ' + times[id].toFixed(1) + ' minutes">' +
+        times[id].toFixed(1) + ' m' + change + '</span></li>';
+    }).join('');
+  }
+  listen(document.getElementById('preview-queue'), 'click', function () {
+    before = current.slice();
+    proposal = [select.value].concat(current.filter(function (id) { return id !== select.value; }));
+    showingAfter = true; confirmed = false;
+    var oldTimes = waits(before), newTimes = waits(proposal);
+    var saved = oldTimes[select.value] - newTimes[select.value];
+    if (saved < 0.01) {
+      status.textContent = jobFor(select.value).name + ' is already first. No waits change, so there is nothing to confirm.';
+    } else {
+      var delayed = proposal.filter(function (id) { return newTimes[id] > oldTimes[id] + 0.01; }).map(function (id) {
+        return jobFor(id).name + ' waits ' + (newTimes[id] - oldTimes[id]).toFixed(1) + ' min longer';
+      });
+      status.textContent = 'Preview only: ' + jobFor(select.value).name + ' waits ' + saved.toFixed(1) + ' min less. ' + delayed.join('; ') + '. Compare Before / After, then confirm in simulation.';
+    }
+    renderQueue();
+  });
+  listen(confirmButton, 'click', function () {
+    if (!proposal || confirmed || proposal.join() === before.join()) return;
+    current = proposal.slice(); confirmed = true;
+    status.textContent = 'Simulation confirmed: ' + jobFor(select.value).name + ' is first in this example. No saved jobs changed. Before / After still shows this comparison.';
+    renderQueue();
+  });
+  listen(beforeButton, 'click', function () { showingAfter = false; renderQueue(); });
+  listen(afterButton, 'click', function () { if (proposal) { showingAfter = true; renderQueue(); } });
+  listen(select, 'change', function () {
+    before = current.slice(); proposal = null; confirmed = false; showingAfter = false;
+    status.textContent = 'Selection changed. Preview ' + jobFor(select.value).name + ' to inspect the new trade-offs.';
+    renderQueue();
+  });
+  listen(document.getElementById('reset-queue'), 'click', function () {
+    current = original.slice(); before = current.slice(); proposal = null; confirmed = false; showingAfter = false;
+    select.value = 'lab'; status.textContent = 'Demo reset to the original three fictional jobs. Nothing was saved or changed in the portal.';
+    renderQueue();
+  });
+  /* Roving-tabindex tabs: arrows, Home and End select the visible stage. */
+  var stages = [
+    ['Start with the actual job.', 'Inspect the document, page count, copies and print settings. Each fictional order has an identity, not just a place in a pile.', 'Explore the print queue', '/shopkeeper/queue', 'receive'],
+    ['Give urgency a visible cost.', 'Compare a proposed order and its waiting times. Review who moves forward and who waits longer, then explicitly confirm a change.', 'Explore queue optimization', '/shopkeeper/optimization', 'sequence'],
+    ['Track the printer, not a guess.', 'Start the eligible job, record printer availability and mark pages ready when they are actually ready. Browser printing is separate from job status.', 'Open printer management', '/shopkeeper/printers', 'print'],
+    ['The right pages. The right person.', 'Check the ready order’s pickup token before handover, then confirm collection. A completed record means collected, not payment received.', 'Open pickup verification', '/shopkeeper/pickup', 'collect']
+  ];
+  var tabs = Array.from(landing.querySelectorAll('[role="tab"]'));
+  var ticketSteps = landing.querySelectorAll('.ticket-step');
+  function showStage(index, focus) {
+    tabs.forEach(function (tab, i) { tab.setAttribute('aria-selected', String(i === index)); tab.tabIndex = i === index ? 0 : -1; });
+    var data = stages[index], link = document.getElementById('stage-link');
+    document.getElementById('stage-title').textContent = data[0];
+    document.getElementById('stage-description').textContent = data[1];
+    link.textContent = data[2]; link.href = data[3];
+    document.getElementById('workflow-panel').setAttribute('aria-labelledby', 'tab-' + index);
+    document.getElementById('ticket-status').textContent = 'Viewing: ' + data[4];
+    ticketSteps.forEach(function (step, i) { step.classList.toggle('active', i <= index); });
+    if (focus) tabs[index].focus();
+  }
+  tabs.forEach(function (tab, index) {
+    listen(tab, 'click', function () { showStage(index, false); });
+    listen(tab, 'keydown', function (event) {
+      var next = index;
+      if (event.key === 'ArrowRight' || event.key === 'ArrowDown') next = (index + 1) % 4;
+      else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') next = (index + 3) % 4;
+      else if (event.key === 'Home') next = 0;
+      else if (event.key === 'End') next = 3;
+      else return;
+      event.preventDefault(); showStage(next, true);
+    });
+  });
+  /* One animation scheduler. Pointer motion is local, passive and mouse-only. */
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+  var coarse = window.matchMedia('(pointer: coarse)');
+  var paused = false, suspended = false, visible = !document.hidden, inView = true;
+  var frame = 0, previous = 0, clock = 0, pointerX = 0, pointerY = 0;
+  var hero = document.querySelector('#landing .hero'), canvas = document.getElementById('ink-canvas');
+  var motionButton = document.getElementById('motion-toggle');
+  var gl = null, program = null, vertexBuffer = null, maskTexture = null, vertexShader = null, fragmentShader = null;
+  var uniforms = null, heroObserver = null, sizeObserver = null, failed = false;
+  var title = document.getElementById('hero-title'), textBounds = new Float32Array(4);
+  var lowPower = coarse.matches || innerWidth < 760 || (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 2) || (navigator.connection && navigator.connection.saveData);
+  function mayAnimate() { return !paused && !reduced.matches && !suspended && visible && inView && !!gl && !failed; }
+  function syncMotion() {
+    landing.classList.toggle('motion-paused', paused || reduced.matches);
+    motionButton.setAttribute('aria-pressed', String(paused));
+    document.getElementById('motion-label').textContent = reduced.matches ? (paused ? 'Resume effects' : 'Effects reduced') : (paused ? 'Resume motion' : 'Pause motion');
+    motionButton.title = reduced.matches ? 'Your reduced-motion preference keeps decorative animation still.' : 'Pause or resume decorative effects for this visit';
+    if (!mayAnimate()) { cancelAnimationFrame(frame); frame = 0; previous = 0; }
+    else if (!frame) frame = requestAnimationFrame(tick);
+  }
+  function render() {
+    if (!gl || !program || failed || suspended) return;
+    gl.useProgram(program); gl.uniform1f(uniforms.time, clock); gl.uniform2f(uniforms.pointer, pointerX, pointerY); gl.drawArrays(gl.TRIANGLES, 0, 3);
+  }
+  function tick(now) {
+    frame = 0;
+    if (!mayAnimate()) { previous = 0; return; }
+    if (previous) clock += Math.min((now - previous) / 1000, 0.05);
+    previous = now; render(); frame = requestAnimationFrame(tick);
+  }
+  function releaseGPU() {
+    cancelAnimationFrame(frame); frame = 0; previous = 0; hero.classList.remove('shader-ready');
+    if (gl) {
+      if (maskTexture) gl.deleteTexture(maskTexture);
+      if (vertexBuffer) gl.deleteBuffer(vertexBuffer);
+      if (program) gl.deleteProgram(program);
+      if (vertexShader) gl.deleteShader(vertexShader);
+      if (fragmentShader) gl.deleteShader(fragmentShader);
+    }
+    maskTexture = null; vertexBuffer = null; program = null; vertexShader = null; fragmentShader = null; uniforms = null;
+  }
+  function fallback() { failed = true; releaseGPU(); gl = null; }
+  function compile(type, source) {
+    var shader = gl.createShader(type);
+    if (!shader) throw new Error('Shader unavailable');
+    gl.shaderSource(shader, source); gl.compileShader(shader);
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) { gl.deleteShader(shader); throw new Error('Shader unsupported'); }
+    return shader;
+  }
+  function resizeScene() {
+    if (!gl || !program || suspended || failed) return;
+    try {
+      var rect = hero.getBoundingClientRect(), dpr = Math.min(devicePixelRatio || 1, innerWidth < 760 ? 1 : 1.5);
+      var scale = Math.min(dpr, 1800 / rect.width, 1300 / rect.height);
+      canvas.width = Math.max(1, Math.round(rect.width * scale)); canvas.height = Math.max(1, Math.round(rect.height * scale));
+      gl.viewport(0, 0, canvas.width, canvas.height); gl.useProgram(program); gl.uniform2f(uniforms.resolution, canvas.width, canvas.height);
+      var box = title.getBoundingClientRect(), mask = document.createElement('canvas'), ratio = Math.min(1.5, 1600 / box.width);
+      mask.width = Math.max(1, Math.ceil(box.width * ratio)); mask.height = Math.max(1, Math.ceil(box.height * ratio));
+      var context = mask.getContext('2d');
+      if (!context) throw new Error('Text mask unavailable');
+      context.scale(ratio, ratio); context.fillStyle = '#fff'; context.textBaseline = 'middle'; context.textAlign = 'center';
+      var style = getComputedStyle(title); context.font = style.fontWeight + ' ' + style.fontSize + ' ' + style.fontFamily;
+      if ('letterSpacing' in context) context.letterSpacing = style.letterSpacing;
+      title.querySelectorAll('span').forEach(function (span) {
+        var line = span.getBoundingClientRect();
+        context.fillText(span.textContent, box.width / 2, line.top - box.top + line.height * 0.47, box.width - 8);
+      });
+      gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, maskTexture); gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, mask);
+      textBounds[0] = (box.left - rect.left) / rect.width; textBounds[1] = 1 - (box.bottom - rect.top) / rect.height;
+      textBounds[2] = box.width / rect.width; textBounds[3] = box.height / rect.height;
+      gl.uniform4fv(uniforms.textRect, textBounds); render();
+      if (gl.getError() !== gl.NO_ERROR || gl.isContextLost()) throw new Error('Rendering unavailable');
+      hero.classList.add('shader-ready');
+    } catch (_) { fallback(); }
+  }
+  function createScene() {
+    if (lowPower || failed || suspended) return;
+    try {
+      gl = canvas.getContext('webgl', { alpha: false, antialias: false, depth: false, stencil: false, powerPreference: 'low-power', preserveDrawingBuffer: false });
+      if (!gl) { fallback(); return; }
+      vertexShader = compile(gl.VERTEX_SHADER, 'attribute vec2 aPosition;varying vec2 vUv;void main(){vUv=aPosition*.5+.5;gl_Position=vec4(aPosition,0.,1.);}');
+      fragmentShader = compile(gl.FRAGMENT_SHADER, `
+        precision mediump float;
+        varying vec2 vUv;
+        uniform vec2 uResolution;
+        uniform float uTime;
+        uniform vec2 uPointer;
+        uniform vec4 uTextRect;
+        uniform sampler2D uMask;
+        float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+        mat2 rotate(float a){float c=cos(a),s=sin(a);return mat2(c,-s,s,c);}
+        float box(vec2 p,vec2 b){vec2 d=abs(p)-b;return length(max(d,0.))+min(max(d.x,d.y),0.);}
+        void main(){
+          vec2 uv=vUv;
+          float t=uTime*.28;
+          vec3 col=mix(vec3(.145,.12,.43),vec3(.055,.38,.46),smoothstep(.05,1.2,uv.x+(1.-uv.y)*.28));
+          col+=vec3(.035,.045,.11)*sin(uv.y*3.+uv.x*3.+t*.3);
+          float interference=sin(uv.x*32.+sin(uv.y*13.+t)*2.)*sin(uv.y*27.-t*.7);
+          col+=interference*.009;
+          vec2 p=vec2((uv.x-.5)*uResolution.x/uResolution.y,uv.y-.19);
+          p.x+=uPointer.x*.014;p.y+=uPointer.y*.009;
+          for(int i=0;i<3;i++){
+            float fi=float(i);
+            vec2 q=rotate(-.14+fi*.16+sin(t*.45+fi)*.025)*p;
+            q.y-=sin(q.x*4.+t+fi*.85)*(.028+fi*.009);
+            q+=vec2((fi-1.)*.045,(fi-1.)*.052);
+            float d=box(q,vec2(.285+fi*.026,.056));
+            float edge=1.-smoothstep(-.001,.002,d);
+            float shadow=(1.-smoothstep(.002,.035,d))*.16;
+            col*=1.-shadow;
+            float fold=smoothstep(-.025,.045,q.y)*.18;
+            vec3 paper=mix(vec3(.87,.94,.98),vec3(.60,.84,.83),fi*.20+fold);
+            if(i==2)paper=mix(paper,vec3(.93,.69,.81),smoothstep(.1,.35,q.x)*.47);
+            float lines=step(.72,fract((q.y+.06)*185.))*step(abs(q.x),.20)*step(abs(q.y),.039);
+            float foldLine=exp(-abs(q.y-.031)*400.);
+            paper-=lines*vec3(.27,.25,.18)*.5;paper+=foldLine*.13;
+            float reg=1.-smoothstep(.001,.003,abs(length(q-vec2(-.24,.025))-.009));
+            paper=mix(paper,vec3(.23,.34,.53),reg*.8);
+            col=mix(col,paper,edge);
+          }
+          for(int i=0;i<24;i++){
+            float fi=float(i);vec2 seed=vec2(fi,fi+7.);
+            vec2 pos=vec2(hash(seed),.06+hash(seed+3.)*.32);
+            pos.x+=sin(t*.35+fi)*.012;pos.y+=cos(t*.4+fi)*.009;
+            vec2 delta=(uv-pos)*vec2(uResolution.x/uResolution.y,1.);
+            float fleck=1.-smoothstep(.001,.003,length(delta));
+            col=mix(col,mix(vec3(.53,.81,.81),vec3(.91,.63,.77),step(.65,hash(seed+2.))),fleck*.7);
+          }
+          vec2 local=(uv-uTextRect.xy)/uTextRect.zw;
+          float inside=step(0.,local.x)*step(local.x,1.)*step(0.,local.y)*step(local.y,1.);
+          vec2 wave=vec2(sin(local.y*12.+t*1.1)+sin(local.x*7.-t)*.5,cos(local.x*11.+t*.8))*.0018;
+          float mask=texture2D(uMask,clamp(local+wave,0.,1.)).a*inside;
+          float ink=sin(local.x*10.+local.y*4.+t*.65)*.5+.5;
+          vec3 type=mix(vec3(.93,.98,1.),vec3(.76,.93,.88),ink*.45);
+          col=mix(col,type,mask);
+          float dither=hash(floor(gl_FragCoord.xy))-.5;
+          col+=dither/95.;gl_FragColor=vec4(col,1.);
+        }`);
+      program = gl.createProgram();
+      if (!program) throw new Error('Program unavailable');
+      gl.attachShader(program, vertexShader); gl.attachShader(program, fragmentShader); gl.linkProgram(program);
+      if (!gl.getProgramParameter(program, gl.LINK_STATUS)) throw new Error('Program unsupported');
+      gl.useProgram(program);
+      vertexBuffer = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,3,-1,-1,3]), gl.STATIC_DRAW);
+      var attribute = gl.getAttribLocation(program, 'aPosition'); gl.enableVertexAttribArray(attribute); gl.vertexAttribPointer(attribute, 2, gl.FLOAT, false, 0, 0);
+      uniforms = { time: gl.getUniformLocation(program,'uTime'), pointer: gl.getUniformLocation(program,'uPointer'), resolution: gl.getUniformLocation(program,'uResolution'), textRect: gl.getUniformLocation(program,'uTextRect') };
+      maskTexture = gl.createTexture(); gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D,maskTexture);
+      gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+      gl.uniform1i(gl.getUniformLocation(program,'uMask'),0);
+      resizeScene(); syncMotion();
+    } catch (_) { fallback(); }
+  }
+  listen(motionButton, 'click', function () { paused = !paused; syncMotion(); });
+  listen(reduced, 'change', function () { pointerX = 0; pointerY = 0; syncMotion(); render(); });
+  listen(document, 'visibilitychange', function () { visible = !document.hidden; syncMotion(); });
+  listen(hero, 'pointermove', function (event) {
+    if (event.pointerType !== 'mouse' || paused || reduced.matches) return;
+    var rect = hero.getBoundingClientRect();
+    pointerX = (event.clientX - rect.left) / rect.width - .5; pointerY = (event.clientY - rect.top) / rect.height - .5;
+  }, { passive: true });
+  listen(hero, 'pointerleave', function () { pointerX = 0; pointerY = 0; }, { passive: true });
+  var featurePaper = document.getElementById('feature-paper');
+  listen(featurePaper, 'pointermove', function (event) {
+    if (event.pointerType !== 'mouse' || paused || reduced.matches) return;
+    var rect = featurePaper.getBoundingClientRect();
+    featurePaper.style.setProperty('--shift', ((event.clientX - rect.left) / rect.width * 10 - 5).toFixed(1) + 'px');
+  }, { passive: true });
+  listen(featurePaper, 'pointerleave', function () { featurePaper.style.setProperty('--shift', '0px'); }, { passive: true });
+  listen(canvas, 'webglcontextlost', function (event) { event.preventDefault(); fallback(); });
+  listen(canvas, 'webglcontextrestored', function () { failed = false; createScene(); });
+  function observe() {
+    if ('IntersectionObserver' in window) {
+      heroObserver = new IntersectionObserver(function (entries) { inView = entries[0].isIntersecting; syncMotion(); });
+      heroObserver.observe(hero);
+    }
+    if ('ResizeObserver' in window) { sizeObserver = new ResizeObserver(resizeScene); sizeObserver.observe(hero); sizeObserver.observe(title); }
+  }
+  function updateCapabilities() {
+    var constrained = coarse.matches || innerWidth < 760 || (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 2) || (navigator.connection && navigator.connection.saveData);
+    if (constrained !== lowPower) {
+      lowPower = constrained;
+      releaseGPU();
+      gl = null;
+      if (!lowPower) createScene();
+      syncMotion();
+    } else {
+      resizeScene();
+    }
+  }
+  listen(window, 'resize', updateCapabilities, { passive: true });
+  listen(coarse, 'change', updateCapabilities);
+  if (navigator.connection) listen(navigator.connection, 'change', updateCapabilities);
+  listen(window, 'pagehide', function (event) {
+    suspended = true; releaseGPU();
+    if (heroObserver) heroObserver.disconnect();
+    if (sizeObserver) sizeObserver.disconnect();
+    if (!event.persisted) lifetime.abort();
+  });
+  listen(window, 'pageshow', function (event) {
+    if (!event.persisted) return;
+    suspended = false; visible = !document.hidden; inView = true;
+    observe(); createScene(); syncMotion();
+  });
+  observe(); createScene(); syncMotion();
+})();
+</script>
+<script type="module">
+  if (/^\/shopkeeper(?:\/|$)/.test(location.pathname)) import('/src/main.tsx');
+</script>
+</body>
+</html>

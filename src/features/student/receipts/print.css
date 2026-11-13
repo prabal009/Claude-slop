@@ -1,0 +1,62 @@
+@page {
+  size: A4;
+  margin: 18mm;
+}
+html {
+  color-scheme: light;
+  background: white;
+  color: #111827;
+  font-family:
+    system-ui, "Noto Sans Devanagari", "Noto Sans Kannada", sans-serif;
+}
+body {
+  margin: 0;
+}
+.pq-print-sheet {
+  max-width: 720px;
+  margin: auto;
+  overflow-wrap: anywhere;
+  font-size: 12pt;
+  line-height: 1.5;
+}
+.pq-print-sheet h1 {
+  font-size: 22pt;
+}
+.pq-print-sheet h2 {
+  font-size: 17pt;
+}
+.pq-print-sheet dl {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 8px 20px;
+}
+.pq-print-sheet dl > div {
+  display: contents;
+}
+.pq-print-sheet dt {
+  font-weight: 700;
+}
+.pq-print-sheet dd {
+  margin: 0;
+}
+.pq-print-sheet svg {
+  display: block;
+  max-width: 100%;
+  margin: 20px 0;
+}
+.pq-print-sheet .pq-print-token {
+  font:
+    700 14pt ui-monospace,
+    monospace;
+  overflow-wrap: anywhere;
+}
+.pq-print-sheet .pq-print-disclaimer {
+  border: 2px solid #111827;
+  padding: 12px;
+  font-weight: 700;
+}
+@media print {
+  .pq-print-sheet {
+    max-width: none;
+  }
+}
