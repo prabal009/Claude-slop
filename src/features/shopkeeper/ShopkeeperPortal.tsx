@@ -1,9 +1,10 @@
 import { Component, Suspense, lazy, useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { NavLink, Navigate, Route, Routes, useLocation } from 'react-router-dom';
-import { Activity, ArrowUpRight, BarChart3, CheckCheck, ChevronRight, FlaskConical, Home, LayoutDashboard, Menu, Moon, Printer, QrCode, Settings, ShieldCheck, Sparkles, Sun, Workflow, X, Zap } from 'lucide-react';
+import { Activity, ArrowUpRight, BarChart3, CheckCheck, ChevronRight, FlaskConical, GraduationCap, Home, LayoutDashboard, LogOut, Menu, Moon, Printer, QrCode, Settings, ShieldCheck, Sparkles, Sun, WifiOff, Workflow, X, Zap } from 'lucide-react';
 import type { ShopkeeperService } from './types';
 import { PortalProvider, usePortal } from './PortalContext';
+import { useOptionalAuth } from '../auth/AuthContext';
 import { translate } from './i18n/dictionary';
 import './styles.css';
 const Dashboard=lazy(()=>import('./pages/Dashboard'));
@@ -29,7 +30,8 @@ class PortalErrorBoundary extends Component<{children:ReactNode},{failed:boolean
  }
 }
 function Shell() {
- const { snapshot, t, language, setLanguage, theme, setTheme } = usePortal();
+ const { snapshot, connectionError, t, language, setLanguage, theme, setTheme } = usePortal();
+ const auth = useOptionalAuth();
  const [open, setOpen] = useState(false);
  const [narrow, setNarrow] = useState(() => window.matchMedia('(max-width: 800px)').matches);
  const menuRef = useRef<HTMLButtonElement>(null);
@@ -110,8 +112,27 @@ function Shell() {
    </nav>
    <div className="sidebar-bottom">
     <a href="/" className="showcase-link"><Home size={17} aria-hidden="true" /><span>{t('PrintQ home')}</span></a>
+    <a href="/student" className="showcase-link"><GraduationCap size={17} aria-hidden="true" /><span>Student Portal</span></a>
     <NavLink to="/shopkeeper/showcase" className="showcase-link"><span>{t('Entry showcase')}</span><ArrowUpRight size={17} aria-hidden="true" /></NavLink>
-    <div className="local-note"><ShieldCheck size={16} aria-hidden="true" /><span>{t('Same browser only. No cross-device sync.')}</span></div>
+    {auth ? (
+     <div className="local-note" style={{ flexDirection: 'column', gap: 8 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+       <ShieldCheck size={16} aria-hidden="true" />
+       <span>{auth.runtime?.mode === 'demo' ? 'Demo · Shopkeeper' : (auth.session?.user.name ?? auth.session?.user.email ?? 'Signed in')}</span>
+      </div>
+      <button
+       type="button"
+       className="showcase-link"
+       style={{ background: 'none', border: 0, padding: 0, width: '100%', textAlign: 'left', color: '#fff', fontWeight: 600 }}
+       onClick={() => void auth.signOut()}
+      >
+       <LogOut size={16} aria-hidden="true" />
+       <span>Sign out</span>
+      </button>
+     </div>
+    ) : (
+     <div className="local-note"><ShieldCheck size={16} aria-hidden="true" /><span>{t('Same browser only. No cross-device sync.')}</span></div>
+    )}
    </div>
   </aside>
   <div className="main-layout" inert={mobileOpen}>
@@ -131,6 +152,7 @@ function Shell() {
     </div>
    </header>
    <div className="demo-ribbon"><span><span className="demo-dot" />{t(snapshot.mode === 'demo' ? 'Demo Mode' : 'Workspace')}</span><span>{t('Fictional data · no payments processed')}</span><Activity size={15} aria-hidden="true" /></div>
+   {connectionError && <div className="printer-banner" role="alert"><WifiOff size={19} aria-hidden="true" /><div><strong>Workspace connection</strong><span>{connectionError}</span></div></div>}
    {snapshot.printer.state !== 'operational' && <div className="printer-banner" role="status"><Printer size={19} aria-hidden="true" /><div><strong>{t('Printer unavailable')}</strong><span>{t('New printing is blocked. Pickup estimates may be delayed.')}</span></div><NavLink to="/shopkeeper/printers">{t('Printer Management')}</NavLink></div>}
    <main id="main-content" className="workspace" tabIndex={-1}>
     <Suspense fallback={<div className="empty" role="status">{t('Loading your workspace…')}</div>}>

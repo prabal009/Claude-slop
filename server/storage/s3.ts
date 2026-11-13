@@ -23,16 +23,6 @@ export function createS3Client(config: S3Config): S3Client {
   });
 }
 
-function corsAllowsUpload(rules: CORSRule[] | undefined, origin: string): boolean {
-  if (!rules || rules.length === 0) return false;
-  return rules.some((rule) => {
-    const methods = rule.AllowedMethods ?? [];
-    const origins = rule.AllowedOrigins ?? [];
-    const hasPut = methods.includes('PUT') || methods.includes('*');
-    const hasOrigin = origins.includes('*') || origins.includes(origin);
-    return hasPut && hasOrigin;
-  });
-}
 
 export async function ensureBucketCors(
   client: S3Client,
@@ -40,15 +30,6 @@ export async function ensureBucketCors(
   appUrl: string,
   isProduction: boolean,
 ): Promise<void> {
-  try {
-    const existing = await client.send(new GetBucketCorsCommand({ Bucket: bucket }));
-    if (corsAllowsUpload(existing.CORSRules, appUrl)) {
-      return;
-    }
-  } catch {
-    // Proceed to PutBucketCors if GetBucketCors is unsupported or no CORS policy exists
-  }
-
   const allowedOrigins = isProduction
     ? [appUrl]
     : Array.from(new Set([appUrl, 'http://localhost:5173', 'http://127.0.0.1:5173']));
@@ -71,13 +52,10 @@ export async function ensureBucketCors(
       }),
     );
   } catch (error) {
-    const name = error instanceof Error ? error.name : '';
-    const status = (error as { $metadata?: { httpStatusCode?: number } })?.$metadata?.httpStatusCode;
-    if (name === 'AccessDenied' || name === 'NotImplemented' || status === 403 || status === 501) {
-      // Managed bucket may disallow PutBucketCors while already allowing browser uploads
-      return;
-    }
-    throw error;
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(
+      `Failed to configure S3 bucket CORS for "${bucket}" (${allowedOrigins.join(', ')}): ${message}`,
+    );
   }
 }
 

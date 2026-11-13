@@ -55,12 +55,18 @@ export function useDraft() {
   }
   async function create(initial: Partial<RawPrintFields> = {}): Promise<Draft> {
     if (repository) return repository.createDraft(initial);
+    let generation = 1;
+    try {
+      generation = (await service.getQueueSnapshot()).localGeneration ?? 1;
+    } catch {
+      generation = 1;
+    }
     return {
       ...defaults,
       ...initial,
       id: createUuid(),
       clientRequestId: createUuid(),
-      generation: 1,
+      generation,
       revision: 0,
       state: "editing",
       committedJobId: null,

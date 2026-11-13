@@ -23,7 +23,7 @@ import {
 import { money, number } from "../utils/format";
 
 export function NewPrintPage() {
-  const { service, basePath, repository } = useStudent();
+  const { service, basePath, repository, queue } = useStudent();
   const {
     draft,
     update,
@@ -111,7 +111,10 @@ export function NewPrintPage() {
         {
           ...result.input,
           clientRequestId: saved.clientRequestId,
-          ...(repository ? { expectedLocalGeneration: saved.generation } : {}),
+          ...((queue?.source === "local-demo" && queue.localGeneration !== null) ||
+          !!repository
+            ? { expectedLocalGeneration: saved.generation }
+            : {}),
         },
         saved.file ?? undefined,
       );

@@ -29,7 +29,18 @@ describe('deterministic processing, pricing and paper', () => {
     expect(cost(job,settings)).toBe(30); expect(cost({...job,colorMode:'colour'},settings)).toBe(150);
     expect(sheets(job)).toBe(9); expect(sheets({...job,duplex:false})).toBe(15);
   });
-  it.each([NaN,Infinity,-1,0,1.5,1001])('rejects invalid page count %s', pageCount => { expect(() => duration({pageCount,copies:1,colorMode:'bw'})).toThrow(); });
+  it.each([NaN,Infinity,-1,0,1.5,10001])('rejects invalid page count %s', pageCount => { expect(() => duration({pageCount,copies:1,colorMode:'bw'})).toThrow(); });
+  it('accepts 10000-page boundary for duration, cost, sheets, and validateSnapshot', () => {
+    const s = createDemoSnapshot(NOW);
+    const job = { pageCount: 10000, copies: 1, colorMode: 'colour' as const, duplex: true };
+    expect(duration(job)).toBe(8001);
+    expect(cost(job, s.settings)).toBe(100000);
+    expect(sheets(job)).toBe(5000);
+    const target = s.jobs.find(j => j.status === 'queued')!;
+    target.pageCount = 10000;
+    const updated = calculateSnapshot(s, NOW);
+    expect(() => validateSnapshot(updated)).not.toThrow();
+  });
   it('includes remaining active workload and excludes completed work', () => {
     const s = createDemoSnapshot(NOW), active = s.jobs.find(j => j.status === 'printing')!;
     expect(active.remainingMinutes).toBeCloseTo(4.6);

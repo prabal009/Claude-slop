@@ -47,7 +47,7 @@ export default function SettingsPage() {
     setDemoError('');
     const pageCount = Number(pages); const quantity = Number(copies);
     if (!documentName.trim() || documentName.trim().length > 160) { setDemoError('Enter a document name from 1 to 160 characters.'); return; }
-    if (!Number.isInteger(pageCount) || pageCount < 1 || pageCount > 1000 || !Number.isInteger(quantity) || quantity < 1 || quantity > 100) { setDemoError('Use 1 to 1000 pages and 1 to 100 copies, in whole numbers.'); return; }
+    if (!Number.isInteger(pageCount) || pageCount < 1 || pageCount > 10000 || !Number.isInteger(quantity) || quantity < 1 || quantity > 100) { setDemoError('Use 1 to 10000 pages and 1 to 100 copies, in whole numbers.'); return; }
     setBusy(true);
     try {
       if (file) {
@@ -94,7 +94,7 @@ export default function SettingsPage() {
       <div className="notice notice-warning">{t('Demo mode · fictional local data only. No Student Portal, payment system, or physical printer is connected.')}</div>
       <section className="panel"><div className="panel-header"><h2>{t('Add an incoming demo job')}</h2></div><form noValidate className="panel-body stack" onSubmit={e => { e.preventDefault(); void addJob(); }}>
         <label className="field">{t('Document name')}<input maxLength={160} value={documentName} onChange={e => setDocumentName(e.target.value)} /></label>
-        <div className="field-grid"><label className="field">{t('Pages per copy')}<input type="number" min="1" max="1000" step="1" value={pages} onChange={e => setPages(e.target.value)} /></label><label className="field">{t('Copies')}<input type="number" min="1" max="100" step="1" value={copies} onChange={e => setCopies(e.target.value)} /></label><label className="field">{t('Printing mode')}<select value={colorMode} onChange={e => setColorMode(e.target.value as ColorMode)}><option value="bw">{t('B&W')}</option><option value="colour">{t('Colour')}</option></select></label></div>
+        <div className="field-grid"><label className="field">{t('Pages per copy')}<input type="number" min="1" max="10000" step="1" value={pages} onChange={e => setPages(e.target.value)} /></label><label className="field">{t('Copies')}<input type="number" min="1" max="100" step="1" value={copies} onChange={e => setCopies(e.target.value)} /></label><label className="field">{t('Printing mode')}<select value={colorMode} onChange={e => setColorMode(e.target.value as ColorMode)}><option value="bw">{t('B&W')}</option><option value="colour">{t('Colour')}</option></select></label></div>
         <label className="row"><input type="checkbox" checked={duplex} onChange={e => setDuplex(e.target.checked)} />{t('Double-sided printing')}</label>
         <label className="field">{t('Attach an original file (optional)')}<input ref={fileInput} type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" onChange={e => { setFile(e.target.files?.[0]); setDemoError(''); }} /></label>
         <p className="small muted">{t('PDF, DOC, DOCX, JPEG, or PNG. Maximum 20 MiB. File type and signature are checked; page count is entered manually, not extracted. Word files are download-only.')}</p>

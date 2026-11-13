@@ -82,7 +82,7 @@ export function DocumentPanel({ job }: { job: Job }) {
       frame.current.contentWindow.focus(); frame.current.contentWindow.print();
     } catch { notify('The browser blocked embedded printing. Open the file and use the browser print command.', 'info'); }
   }
-  const preferencesValid = Number.isInteger(job.pageCount) && job.pageCount > 0 && job.pageCount <= 1000 && Number.isInteger(job.copies) && job.copies > 0 && job.copies <= 100 && ['bw', 'colour'].includes(job.colorMode) && ['A4', 'A3'].includes(job.paperSize) && typeof job.duplex === 'boolean';
+  const preferencesValid = Number.isInteger(job.pageCount) && job.pageCount > 0 && job.pageCount <= 10000 && Number.isInteger(job.copies) && job.copies > 0 && job.copies <= 100 && ['bw', 'colour'].includes(job.colorMode) && ['A4', 'A3'].includes(job.paperSize) && typeof job.duplex === 'boolean';
   const lowResolution = dimensions && (Math.min(dimensions.width, dimensions.height) < (job.paperSize === 'A3' ? 1754 : 1240) || Math.max(dimensions.width, dimensions.height) < (job.paperSize === 'A3' ? 2480 : 1754));
   return <section className="stack" aria-label={t('Document and quality checks')}>
     <div className="row"><FileText size={18} /><h3>{t('Document and quality checks')}</h3></div>

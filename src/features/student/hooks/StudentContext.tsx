@@ -31,6 +31,7 @@ export interface StudentContextValue {
 const StudentContext = createContext<StudentContextValue | null>(null);
 export function StudentProvider({
   service,
+  serviceMode,
   demoController,
   repository,
   qrCodec,
@@ -38,6 +39,7 @@ export function StudentProvider({
   children,
 }: {
   service: StudentService;
+  serviceMode?: "shared" | "local-demo";
   demoController?: StudentDemoController;
   repository?: PrintQRepository;
   qrCodec?: PickupQrCodec;
@@ -47,12 +49,13 @@ export function StudentProvider({
   const [jobs, setJobs] = useState<PrintJob[]>([]);
   const [queue, setQueue] = useState<QueueSnapshot | null>(null);
   const [diagnostics, setDiagnostics] = useState<Diagnostic[]>([]);
+  const initialMode = serviceMode ?? (repository ? "local-demo" : "shared");
   const [connection, setConnection] = useState<
     StudentContextValue["connection"]
   >({
     type: "connection-changed",
-    mode: repository ? "local-demo" : "shared",
-    state: repository ? "local-ready" : "unavailable",
+    mode: initialMode,
+    state: initialMode === "local-demo" ? "local-ready" : "unavailable",
     lastSyncedAt: null,
   });
   const [retry, setRetry] = useState(0);

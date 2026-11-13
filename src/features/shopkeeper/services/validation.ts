@@ -1,9 +1,11 @@
 import type { Job, ShopSettings, Snapshot, StoredDocument } from '../types';
+import { SHARED_TOKEN_PATTERN } from '../../../shared/printq/pickupCodec';
+import { MAX_JOB_COST, MAX_JOB_DURATION_MINUTES, MAX_PAGE_COUNT } from '../../../shared/printq/policy';
 
 export const DATABASE_NAME = 'printq-shopkeeper-v1';
 export const SNAPSHOT_KEY = 'current';
 export const MAX_FILE_BYTES = 20 * 1024 * 1024;
-export const TOKEN_PATTERN = /^PQ-\d{4}-\d{4,12}$/;
+export const TOKEN_PATTERN = SHARED_TOKEN_PATTERN;
 export function requireThat(condition: unknown, message: string): asserts condition { if (!condition) throw new Error(message); }
 export function numeric(value: unknown, min: number, max: number, integer = false): asserts value is number {
   requireThat(typeof value === 'number' && Number.isFinite(value) && value >= min && value <= max && (!integer || Number.isInteger(value)), `Expected ${integer ? 'an integer' : 'a finite number'} between ${min} and ${max}.`);
@@ -22,7 +24,7 @@ export function validateSettings(value: ShopSettings): void {
 export function validateJob(job: Job, settings: ShopSettings): void {
   requireThat(!!job && typeof job === 'object', 'Invalid job record.'); identifier(job.id);
   requireThat(TOKEN_PATTERN.test(job.token), 'Invalid pickup token.'); text(job.documentName, 160); text(job.instructions, 1000, true);
-  numeric(job.pageCount, 1, 1000, true); numeric(job.copies, 1, 100, true);
+  numeric(job.pageCount, 1, MAX_PAGE_COUNT, true); numeric(job.copies, 1, 100, true);
   requireThat(['bw', 'colour'].includes(job.colorMode) && typeof job.duplex === 'boolean' && ['A4', 'A3'].includes(job.paperSize), 'Invalid print preferences.');
   requireThat(['queued', 'printing', 'ready', 'collected'].includes(job.status) && ['normal', 'urgent'].includes(job.priority) && ['none', 'pending', 'approved', 'rejected'].includes(job.urgentRequestStatus), 'Invalid job state.');
   requireThat((job.priority === 'urgent') === (job.urgentRequestStatus === 'approved'), 'Urgency state is inconsistent.');
@@ -33,7 +35,7 @@ export function validateJob(job: Job, settings: ShopSettings): void {
   requireThat(job.urgentRequestStatus !== 'pending' || (job.status === 'queued' && job.priority === 'normal'), 'Pending urgency requires a normal queued job.');
   if (job.status === 'queued') { numeric(job.queuePosition, 1, 1000, true); requireThat(job.printingStartedAt === null && job.readyAt === null && job.collectedAt === null && job.remainingMinutes === null, 'Queued job has completion data.'); }
   else { requireThat(job.queuePosition === null && job.printingStartedAt !== null, 'Invalid active or completed job.'); }
-  if (job.status === 'printing') { requireThat(job.readyAt === null && job.collectedAt === null, 'Printing job has completion data.'); numeric(job.remainingMinutes, 0, 80001); }
+  if (job.status === 'printing') { requireThat(job.readyAt === null && job.collectedAt === null, 'Printing job has completion data.'); numeric(job.remainingMinutes, 0, MAX_JOB_DURATION_MINUTES); }
   if (job.status === 'ready' || job.status === 'collected') requireThat(job.readyAt !== null && job.remainingMinutes === null, 'Completed job requires a ready timestamp.');
   requireThat((job.status === 'collected') === (job.collectedAt !== null), 'Collection timestamp is inconsistent.');
   if (job.printingStartedAt) requireThat(Date.parse(job.printingStartedAt) >= Date.parse(job.createdAt), 'Printing predates submission.');
@@ -41,7 +43,7 @@ export function validateJob(job: Job, settings: ShopSettings): void {
   if (job.collectedAt) requireThat(Date.parse(job.collectedAt) >= Date.parse(job.readyAt!), 'Collection predates readiness.');
   const expectedDuration = 1 + job.pageCount * job.copies * (job.colorMode === 'bw' ? .4 : .8);
   const expectedCost = job.pageCount * job.copies * (job.colorMode === 'bw' ? settings.bwPrice : settings.colourPrice);
-  numeric(job.estimatedDurationMinutes, 1, 80001); numeric(job.estimatedCost, 0, 1e9);
+  numeric(job.estimatedDurationMinutes, 1, MAX_JOB_DURATION_MINUTES); numeric(job.estimatedCost, 0, MAX_JOB_COST);
   requireThat(Math.abs(job.estimatedDurationMinutes - expectedDuration) < .000001 && Math.abs(job.estimatedCost - Math.round(expectedCost * 100) / 100) < .000001, 'Invalid derived duration or cost.');
   if (job.remainingMinutes !== null) requireThat(job.remainingMinutes <= expectedDuration, 'Remaining workload exceeds total processing duration.');
   if (job.estimatedWaitMinutes !== null) numeric(job.estimatedWaitMinutes, 0, 1e9);

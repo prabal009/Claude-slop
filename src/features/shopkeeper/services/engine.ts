@@ -1,8 +1,9 @@
 import type { Job, QueuePreview, ShopSettings, SimulationScenario, Snapshot } from '../types';
+import { MAX_PAGE_COUNT, MAX_QUEUE_JOBS, SHOP_TIME_ZONE } from '../../../shared/printq/policy';
 import { numeric, requireThat, validateSettings, validateSnapshot } from './validation';
 
 export function duration(job: Pick<Job, 'pageCount' | 'copies' | 'colorMode'>): number {
-  numeric(job.pageCount, 1, 1000, true); numeric(job.copies, 1, 100, true); requireThat(job.colorMode === 'bw' || job.colorMode === 'colour', 'Invalid colour mode.');
+  numeric(job.pageCount, 1, MAX_PAGE_COUNT, true); numeric(job.copies, 1, 100, true); requireThat(job.colorMode === 'bw' || job.colorMode === 'colour', 'Invalid colour mode.');
   return 1 + job.pageCount * job.copies * (job.colorMode === 'bw' ? .4 : .8);
 }
 export function cost(job: Pick<Job, 'pageCount' | 'copies' | 'colorMode'>, settings: ShopSettings): number {
@@ -10,7 +11,7 @@ export function cost(job: Pick<Job, 'pageCount' | 'copies' | 'colorMode'>, setti
   return Math.round(job.pageCount * job.copies * (job.colorMode === 'bw' ? settings.bwPrice : settings.colourPrice) * 100) / 100;
 }
 export function sheets(job: Pick<Job, 'pageCount' | 'copies' | 'duplex'>): number {
-  numeric(job.pageCount, 1, 1000, true); numeric(job.copies, 1, 100, true); requireThat(typeof job.duplex === 'boolean', 'Invalid duplex preference.');
+  numeric(job.pageCount, 1, MAX_PAGE_COUNT, true); numeric(job.copies, 1, 100, true); requireThat(typeof job.duplex === 'boolean', 'Invalid duplex preference.');
   return (job.duplex ? Math.ceil(job.pageCount / 2) : job.pageCount) * job.copies;
 }
 export function orderedQueue(snapshot: Snapshot): Job[] { return snapshot.jobs.filter(j => j.status === 'queued').sort((a,b) => a.queuePosition! - b.queuePosition!); }
@@ -34,22 +35,52 @@ export function promoteUrgent(snapshot: Snapshot, id: string, now: number): void
   // Validate the old urgent block before assigning the new priority.
   setOrder(snapshot, ids, now); job.priority = 'urgent'; job.urgentRequestStatus = 'approved'; job.urgentRequestedAt ??= new Date(now).toISOString(); job.updatedAt = new Date(now).toISOString();
 }
-function operatingTime(start: number, minutes: number, settings: ShopSettings): number {
+function zonedDayBounds(time: number, oh: number, om: number, ch: number, cm: number, timeZone: string): { open: number; close: number; addDays: (days: number) => number } {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  }).formatToParts(new Date(time));
+  const get = (type: Intl.DateTimeFormatPartTypes) => Number(parts.find(p => p.type === type)?.value ?? 0);
+  const year = get('year'), month = get('month'), day = get('day');
+  const hour = get('hour') === 24 ? 0 : get('hour'), minute = get('minute'), second = get('second');
+  const wallUtc = Date.UTC(year, month - 1, day, hour, minute, second);
+  const offsetMs = Math.round((wallUtc - time) / 60000) * 60000;
+  const atDay = (dOffset: number, h: number, m: number) => Date.UTC(year, month - 1, day + dOffset, h, m, 0, 0) - offsetMs;
+  return { open: atDay(0, oh, om), close: atDay(0, ch, cm), addDays: (days: number) => atDay(days, oh, om) };
+}
+function operatingTime(start: number, minutes: number, settings: ShopSettings, timeZone?: string): number {
   let time = start;
   const [oh, om] = settings.opensAt.split(':').map(Number), [ch, cm] = settings.closesAt.split(':').map(Number);
-  const open = new Date(time); open.setHours(oh, om, 0, 0);
-  const close = new Date(time); close.setHours(ch, cm, 0, 0);
-  if (time < open.getTime()) time = open.getTime();
-  if (time >= close.getTime()) { open.setDate(open.getDate() + 1); time = open.getTime(); close.setDate(close.getDate() + 1); }
-  const available = (close.getTime() - time) / 60000;
+  let openMs: number, closeMs: number, addDays: (days: number) => number;
+  if (timeZone) {
+    const bounds = zonedDayBounds(time, oh, om, ch, cm, timeZone);
+    openMs = bounds.open;
+    closeMs = bounds.close;
+    addDays = bounds.addDays;
+  } else {
+    const open = new Date(time); open.setHours(oh, om, 0, 0);
+    const close = new Date(time); close.setHours(ch, cm, 0, 0);
+    openMs = open.getTime();
+    closeMs = close.getTime();
+    addDays = (days: number) => { const d = new Date(openMs); d.setDate(d.getDate() + days); return d.getTime(); };
+  }
+  if (time < openMs) time = openMs;
+  if (time >= closeMs) { openMs = addDays(1); time = openMs; }
+  const available = (closeMs - time) / 60000;
   if (minutes <= available) return time + minutes * 60000;
   const remaining = minutes - available, perDay = (ch - oh) * 60 + cm - om;
   const wholeDays = Math.max(0, Math.ceil(remaining / perDay) - 1);
-  open.setDate(open.getDate() + 1 + wholeDays);
-  return open.getTime() + (remaining - wholeDays * perDay) * 60000;
+  return addDays(1 + wholeDays) + (remaining - wholeDays * perDay) * 60000;
 }
 export function calculateSnapshot(input: Snapshot, now = Date.now()): Snapshot {
   numeric(now, 0, 8e15); const snapshot = structuredClone(input); validateSettings(snapshot.settings);
+  const timeZone = snapshot.mode === 'integrated' ? SHOP_TIME_ZONE : undefined;
   const timestamp = new Date(now).toISOString(), printer = snapshot.printer;
   const active = snapshot.jobs.find(j => j.status === 'printing');
   let remaining = 0;
@@ -66,24 +97,24 @@ export function calculateSnapshot(input: Snapshot, now = Date.now()): Snapshot {
     if (recovery !== null && recovery <= 0) recovery = null;
   }
   const base = recovery === null ? null : now + recovery * 60000;
-  let cursor = base === null ? null : operatingTime(base, remaining, snapshot.settings);
+  let cursor = base === null ? null : operatingTime(base, remaining, snapshot.settings, timeZone);
   for (const job of snapshot.jobs) {
     job.estimatedDurationMinutes = duration(job); job.estimatedCost = cost(job, snapshot.settings);
     if (job.status !== 'queued') job.queuePosition = null;
     if (job.status === 'ready' || job.status === 'collected') {
       job.estimatedWaitMinutes = 0; job.estimatedPickupAt = job.readyAt;
-      job.pickupWindowEnd = job.readyAt ? new Date(operatingTime(Date.parse(job.readyAt), snapshot.settings.pickupBufferMinutes, snapshot.settings)).toISOString() : null;
+      job.pickupWindowEnd = job.readyAt ? new Date(operatingTime(Date.parse(job.readyAt), snapshot.settings.pickupBufferMinutes, snapshot.settings, timeZone)).toISOString() : null;
     } else if (job.status === 'printing') {
       job.estimatedWaitMinutes = 0; job.estimatedPickupAt = cursor === null ? null : new Date(cursor).toISOString();
-      job.pickupWindowEnd = cursor === null ? null : new Date(operatingTime(cursor, snapshot.settings.pickupBufferMinutes, snapshot.settings)).toISOString();
+      job.pickupWindowEnd = cursor === null ? null : new Date(operatingTime(cursor, snapshot.settings.pickupBufferMinutes, snapshot.settings, timeZone)).toISOString();
     }
   }
   for (const job of orderedQueue(snapshot)) {
-    const start = cursor === null ? null : operatingTime(cursor, 0, snapshot.settings);
+    const start = cursor === null ? null : operatingTime(cursor, 0, snapshot.settings, timeZone);
     job.estimatedWaitMinutes = start === null ? null : Math.max(0, (start - now) / 60000);
-    cursor = start === null ? null : operatingTime(start, duration(job), snapshot.settings);
+    cursor = start === null ? null : operatingTime(start, duration(job), snapshot.settings, timeZone);
     job.estimatedPickupAt = cursor === null ? null : new Date(cursor).toISOString();
-    job.pickupWindowEnd = cursor === null ? null : new Date(operatingTime(cursor, snapshot.settings.pickupBufferMinutes, snapshot.settings)).toISOString();
+    job.pickupWindowEnd = cursor === null ? null : new Date(operatingTime(cursor, snapshot.settings.pickupBufferMinutes, snapshot.settings, timeZone)).toISOString();
   }
   validateSnapshot(snapshot); return snapshot;
 }
@@ -124,8 +155,8 @@ export function simulate(input: Snapshot, scenario: SimulationScenario, now = Da
   else if (scenario.kind === 'downtime') changePrinter(after, 'maintenance', scenario.minutes, now);
   else if (scenario.kind === 'resume') changePrinter(after, 'operational', null, now);
   else if (scenario.kind === 'add') {
-    numeric(scenario.pageCount, 1, 1000, true); numeric(scenario.copies, 1, 100, true); requireThat(['bw', 'colour'].includes(scenario.colorMode) && typeof scenario.duplex === 'boolean', 'Invalid hypothetical print preferences.');
-    requireThat(after.jobs.length < 1000, 'The local queue is full.');
+    numeric(scenario.pageCount, 1, MAX_PAGE_COUNT, true); numeric(scenario.copies, 1, 100, true); requireThat(['bw', 'colour'].includes(scenario.colorMode) && typeof scenario.duplex === 'boolean', 'Invalid hypothetical print preferences.');
+    requireThat(after.jobs.length < MAX_QUEUE_JOBS, 'The local queue is full.');
     after.jobs.push({ id: 'hypothetical-job', token: 'PQ-2026-999999999999', documentName: 'Hypothetical print job', documentId: null, originalFileName: null, mimeType: null, fileSize: null,
       ...scenario, paperSize: 'A4', instructions: '', status: 'queued', priority: 'normal', urgentRequestStatus: 'none', urgentRequestedAt: null, queuePosition: orderedQueue(after).length + 1,
       estimatedCost: 0, estimatedDurationMinutes: 0, estimatedWaitMinutes: null, estimatedPickupAt: null, pickupWindowEnd: null, createdAt: new Date(now).toISOString(), updatedAt: new Date(now).toISOString(), printingStartedAt: null, readyAt: null, collectedAt: null, remainingMinutes: null, hypothetical: true });

@@ -1,7 +1,10 @@
-import type { Analytics, Job, JobStatus, ShopkeeperService, Snapshot, StoredDocument } from '../types';
-import { calculateSnapshot, changePrinter, duration, optimize, orderedQueue, preview, promoteUrgent, setOrder, sheets, simulate } from './engine';
+import type { Job, ShopkeeperService, Snapshot, StoredDocument } from '../types';
+import { calculateSnapshot, changePrinter, optimize, orderedQueue, preview, promoteUrgent, setOrder, simulate } from './engine';
+import { calculateAnalytics, requestUrgency, transitionJob } from '../../../shared/printq/mutations';
+import { decodePickupPayload, MAX_PICKUP_INPUT_LENGTH } from '../../../shared/printq/pickupCodec';
+import { MAX_PAGE_COUNT } from '../../../shared/printq/policy';
 import { createDemoSnapshot, createSampleDocument } from './demo';
-import { DATABASE_NAME, SNAPSHOT_KEY, identifier, numeric, requireThat, text, TOKEN_PATTERN, validateDocument, validateSettings, validateSnapshot, validateStoredDocument } from './validation';
+import { DATABASE_NAME, SNAPSHOT_KEY, identifier, numeric, requireThat, text, validateDocument, validateSettings, validateSnapshot, validateStoredDocument } from './validation';
 
 const CHANNEL = 'printq-shopkeeper-updates-v1';
 function newId(): string {
@@ -109,21 +112,6 @@ export function createLocalService(): ShopkeeperService {
   }
   function find(snapshot: Snapshot, id: string): Job { identifier(id); const job = snapshot.jobs.find(j => j.id === id); requireThat(job, 'Job was not found.'); return job; }
   function demoOnly(snapshot: Snapshot): void { requireThat(snapshot.mode === 'demo', 'Demo actions are disabled in integrated mode.'); }
-  function transition(snapshot: Snapshot, id: string, status: JobStatus, now: number): void {
-    const job = find(snapshot,id), at = new Date(now).toISOString();
-    requireThat((job.status === 'queued' && status === 'printing') || (job.status === 'printing' && status === 'ready') || (job.status === 'ready' && status === 'collected'), 'Invalid or duplicate status transition.');
-    if (status === 'printing') {
-      requireThat(snapshot.printer.state === 'operational', 'Resume the printer before starting a job.');
-      requireThat(!snapshot.jobs.some(j => j.status === 'printing'), 'Another job is already printing.');
-      requireThat(orderedQueue(snapshot)[0]?.id === id, 'Start the first queued job. Reorder eligible jobs before starting.');
-      job.printingStartedAt = at; job.remainingMinutes = duration(job);
-      if (job.urgentRequestStatus === 'pending') { job.urgentRequestStatus = 'rejected'; }
-    }
-    if (status === 'ready') { job.readyAt = at; job.remainingMinutes = null; }
-    if (status === 'collected') { requireThat(verified.has(id) && now - verified.get(id)! <= 5 * 60000, 'Verify the pickup token before confirming collection.'); job.collectedAt = at; }
-    job.status = status; job.queuePosition = null; job.updatedAt = at;
-    orderedQueue(snapshot).forEach((queued,index) => { if (queued.queuePosition !== index + 1) { queued.queuePosition = index + 1; queued.updatedAt = at; } });
-  }
   const service: ShopkeeperService = {
     initialize: current,
     getJobs: async () => (await current()).jobs,
@@ -131,7 +119,7 @@ export function createLocalService(): ShopkeeperService {
     getQueueSnapshot: current,
     getPrinterStatus: async () => (await current()).printer,
     getDocument: async id => { await bootstrap(); const document = await readDocument(id); const state = await rawSnapshot(); for (const job of state.jobs.filter(j => j.documentId === id)) requireThat(job.fileSize === document.blob.size && job.mimeType === document.mimeType && job.originalFileName === document.name, 'Stored document metadata does not match.'); return document; },
-    updateJobStatus: (id,status,revision) => mutate(revision, `Job status changed to ${status}.`, (s,now) => transition(s,id,status,now), id),
+    updateJobStatus: (id,status,revision) => mutate(revision, `Job status changed to ${status}.`, (s,now) => transitionJob(s,id,status,now,verified.has(id) && now - verified.get(id)! <= 5 * 60000), id),
     reorderQueue: (ids,revision) => mutate(revision, 'Waiting queue reordered.', (s,now) => { requireThat(Array.isArray(ids), 'Invalid queue order.'); setOrder(s,ids,now); }),
     getUrgentRequests: async () => (await current()).jobs.filter(j => j.urgentRequestStatus === 'pending'),
     getUrgentImpactPreview: async id => { const state = await current(); return simulate(state,{ kind: 'urgent', jobId: id }); },
@@ -144,27 +132,17 @@ export function createLocalService(): ShopkeeperService {
     applySimulation: (scenario,revision) => mutate(revision, 'Confirmed simulation applied.', (s,now) => { const result = simulate(s,scenario,now); requireThat(result.applicable, 'Hypothetical jobs cannot be applied. Add a real demo job in Settings.'); return result.after; }),
     updatePrinterStatus: (state,downtime,revision) => mutate(revision, `Printer changed to ${state}.`, (s,now) => changePrinter(s,state,downtime,now)),
     verifyPickupToken: async input => {
-      text(input,100); const value = input.trim(), token = value.startsWith('printq:v1:') ? value.slice(10) : value;
-      requireThat(TOKEN_PATTERN.test(token), 'Invalid pickup token or unsupported QR payload.');
+      text(input, MAX_PICKUP_INPUT_LENGTH);
+      const token = decodePickupPayload(input);
+      requireThat(token !== null, 'Invalid pickup token or unsupported QR payload.');
       const state = await current(), job = state.jobs.find(j => j.token === token); requireThat(job, 'No job matches this pickup token.');
       if (job.status === 'ready') verified.set(job.id,Date.now()); return job;
     },
-    markCollected: (id,revision) => mutate(revision, 'Verified order collected.', (s,now) => transition(s,id,'collected',now),id),
-    getAnalytics: async () => {
-      const s = await current(), jobs = s.jobs, complete = jobs.filter(j => j.status === 'ready' || j.status === 'collected'), queue = orderedQueue(s);
-      const days = new Map<string,{date:string;jobs:number;saved:number}>(), hours = new Map<string,number>();
-      for (const job of jobs) { const date = job.createdAt.slice(0,10), hour = String(new Date(job.createdAt).getHours()).padStart(2,'0') + ':00'; const day = days.get(date) ?? { date, jobs:0, saved:0 }; day.jobs++; if (job.status === 'ready' || job.status === 'collected') day.saved += job.pageCount * job.copies - sheets(job); days.set(date,day); hours.set(hour,(hours.get(hour) ?? 0) + 1); }
-      const result: Analytics = { submitted: jobs.length, completed: complete.length, averageDuration: jobs.length ? jobs.reduce((sum,j) => sum + duration(j),0) / jobs.length : 0,
-        averageWait: queue.some(j => j.estimatedWaitMinutes === null) ? null : queue.length ? queue.reduce((sum,j) => sum + j.estimatedWaitMinutes!,0) / queue.length : 0,
-        estimatedValue: jobs.reduce((sum,j) => sum + j.estimatedCost,0), sheetsUsed: complete.reduce((sum,j) => sum + sheets(j),0), sheetsSaved: complete.reduce((sum,j) => sum + j.pageCount * j.copies - sheets(j),0), duplexJobs: jobs.filter(j => j.duplex).length,
-        urgentReceived: jobs.filter(j => j.urgentRequestedAt !== null).length, urgentApproved: jobs.filter(j => j.urgentRequestStatus === 'approved').length,
-        downtimeMinutes: s.printer.recordedDowntimeMinutes + (s.printer.state === 'operational' ? 0 : Math.max(0,Date.now() - Date.parse(s.printer.changedAt)) / 60000),
-        byDay: [...days.values()].sort((a,b) => a.date.localeCompare(b.date)), byHour: [...hours].sort(([a],[b]) => a.localeCompare(b)).map(([hour,count]) => ({ hour, jobs:count })), byMode: [{ name:'B&W', value:jobs.filter(j => j.colorMode === 'bw').length }, { name:'Colour', value:jobs.filter(j => j.colorMode === 'colour').length }] };
-      return result;
-    },
+    markCollected: (id,revision) => mutate(revision, 'Verified order collected.', (s,now) => transitionJob(s,id,'collected',now,verified.has(id) && now - verified.get(id)! <= 5 * 60000),id),
+    getAnalytics: async () => calculateAnalytics(await current(), Date.now()),
     updateSettings: (settings,revision) => mutate(revision, 'Shop pricing and operating hours updated.', s => { validateSettings(settings); s.settings = structuredClone(settings); }),
     addDemoJob: async input => {
-      requireThat(!!input && typeof input === 'object', 'Invalid job input.'); text(input.documentName,160); numeric(input.pageCount,1,1000,true); numeric(input.copies,1,100,true); requireThat(['bw','colour'].includes(input.colorMode) && typeof input.duplex === 'boolean', 'Invalid print preferences.');
+      requireThat(!!input && typeof input === 'object', 'Invalid job input.'); text(input.documentName,160); numeric(input.pageCount,1,MAX_PAGE_COUNT,true); numeric(input.copies,1,100,true); requireThat(['bw','colour'].includes(input.colorMode) && typeof input.duplex === 'boolean', 'Invalid print preferences.');
       let document: StoredDocument | null = null;
       if (input.file) { requireThat(input.file instanceof Blob && typeof input.file.name === 'string', 'Invalid attached file.'); const mimeType = await validateDocument(input.file,input.file.name,input.file.type); document = { id: newId(), name: input.file.name, mimeType, blob: input.file.slice(0,input.file.size,mimeType) }; }
       const state = await current();
@@ -179,7 +157,7 @@ export function createLocalService(): ShopkeeperService {
         s.jobs.push(job); if (document) tx.objectStore('documents').put(document);
       });
     },
-    requestDemoUrgency: (id,revision) => mutate(revision,'Demo urgency request received.',(s,now) => { demoOnly(s); const job = find(s,id); requireThat(job.status === 'queued' && job.priority === 'normal' && job.urgentRequestStatus === 'none','Only a normal queued job without a previous request may request urgency.'); job.urgentRequestStatus = 'pending'; job.urgentRequestedAt = new Date(now).toISOString(); job.updatedAt = new Date(now).toISOString(); },id),
+    requestDemoUrgency: (id,revision) => mutate(revision,'Demo urgency request received.',(s,now) => { demoOnly(s); requestUrgency(s,id,now); },id),
     resetDemo: revision => mutate(revision,'Fictional demo reset confirmed.',(s,now,tx) => { demoOnly(s); verified.clear(); tx.objectStore('documents').clear(); tx.objectStore('documents').put(createSampleDocument()); return createDemoSnapshot(now); }),
     subscribeToJobUpdates: callback => {
       requireThat(!disposed, 'This service has been disposed.'); callbacks.add(callback);

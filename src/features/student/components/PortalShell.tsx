@@ -13,8 +13,11 @@ import {
   CircleHelp,
   Route,
   Settings,
+  LogOut,
+  ArrowUpRight,
 } from "lucide-react";
 import { useStudent } from "../hooks/StudentContext";
+import { useOptionalAuth } from "../../auth/AuthContext";
 import { Notice, Loading } from "./ui";
 import { date, number } from "../utils/format";
 import { useTranslation } from "../i18n/TranslationProvider";
@@ -97,6 +100,7 @@ export function PortalShell({ children }: { children: ReactNode }) {
     refresh,
   } = useStudent();
   const { t, intlLocale } = useTranslation();
+  const auth = useOptionalAuth();
   const [menu, setMenu] = useState(false);
   const [mobile, setMobile] = useState(
     () => typeof window !== "undefined" && window.innerWidth <= 820,
@@ -220,8 +224,92 @@ export function PortalShell({ children }: { children: ReactNode }) {
           </NavLink>
         </nav>
         <div className="pq-sidebar-footer">
-          <ShieldCheck size={17} aria-hidden="true" />
-          <p>{t("presentation.noLogin")}</p>
+          {auth ? (
+            <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 8 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <ShieldCheck size={16} aria-hidden="true" />
+                <strong style={{ color: "var(--pq-text)", fontSize: 12 }}>
+                  {auth.runtime?.mode === "demo"
+                    ? `Demo · ${auth.role === "shopkeeper" ? "Shopkeeper" : "Student"}`
+                    : auth.session?.user.name ?? "Signed in"}
+                </strong>
+              </div>
+              {auth.session?.user.email && (
+                <span style={{ wordBreak: "break-word" }}>{auth.session.user.email}</span>
+              )}
+              {auth.role === "shopkeeper" && (
+                <a
+                  href="/shopkeeper"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 6,
+                    minHeight: 44,
+                    color: "var(--pq-accent)",
+                    fontWeight: 600,
+                    textDecoration: "none",
+                  }}
+                >
+                  <span>Switch to Shopkeeper</span>
+                  <ArrowUpRight size={14} aria-hidden="true" />
+                </a>
+              )}
+              <a
+                href="/"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                  minHeight: 44,
+                  color: "var(--pq-muted)",
+                  textDecoration: "none",
+                }}
+              >
+                <Home size={14} aria-hidden="true" />
+                <span>PrintQ home</span>
+              </a>
+              <button
+                type="button"
+                onClick={() => void auth.signOut()}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                  minHeight: 44,
+                  padding: "6px 10px",
+                  border: "1px solid var(--pq-line)",
+                  borderRadius: 7,
+                  background: "var(--pq-card)",
+                  color: "var(--pq-text)",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  textAlign: "left",
+                }}
+              >
+                <LogOut size={14} aria-hidden="true" />
+                <span>Sign out</span>
+              </button>
+            </div>
+          ) : (
+            <>
+              <ShieldCheck size={17} aria-hidden="true" />
+              <p>{t("presentation.noLogin")}</p>
+              <a
+                href="/"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                  minHeight: 44,
+                  color: "var(--pq-muted)",
+                  textDecoration: "none",
+                }}
+              >
+                <Home size={14} aria-hidden="true" />
+                <span>PrintQ home</span>
+              </a>
+            </>
+          )}
           <span>PrintQ · {t("presentation.portal")} · 1.0</span>
         </div>
       </aside>

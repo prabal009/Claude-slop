@@ -32,6 +32,7 @@ import { ReceiptPage } from "./receipts/ReceiptPage";
 import "./styles.css";
 export interface StudentPortalProps {
   service?: StudentService;
+  serviceMode?: "shared" | "local-demo";
   basePath?: string;
   qrCodec?: PickupQrCodec;
   demoController?: StudentDemoController;
@@ -40,6 +41,7 @@ let localPair: ReturnType<typeof createLocalDemo> | undefined;
 const injectedBoundaries = new WeakMap<StudentService, SharedServiceAdapter>();
 function StudentFrame({
   service: injected,
+  serviceMode,
   basePath = "/student",
   qrCodec,
   demoController,
@@ -50,6 +52,7 @@ function StudentFrame({
   let service = injected ?? pair!.service;
   if (
     injected &&
+    serviceMode !== "local-demo" &&
     !(injected instanceof LocalDemoAdapter) &&
     !(injected instanceof SharedServiceAdapter)
   ) {
@@ -60,13 +63,13 @@ function StudentFrame({
     }
     service = boundary;
   }
-  const repository =
     service instanceof LocalDemoAdapter ? service.repo : undefined;
   return (
     <div className="pq-root" lang={locale} data-theme={resolvedTheme}>
       <PortalBoundary>
         <StudentProvider
           service={service}
+          serviceMode={serviceMode}
           repository={repository}
           demoController={injected ? demoController : pair!.demoController}
           qrCodec={qrCodec ?? (repository ? localPickupQrCodec : undefined)}

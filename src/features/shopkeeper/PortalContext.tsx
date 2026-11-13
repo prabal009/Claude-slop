@@ -10,6 +10,7 @@ interface PortalState {
  snapshot:Snapshot; service:ShopkeeperService;
  run:(operation:()=>Promise<Snapshot>,success?:string)=>Promise<boolean>;
  notify:(message:string,kind?:Toast['kind'])=>void;
+ connectionError:string|null;
  t:(key:string)=>string; language:Language; setLanguage:(value:Language)=>void;
  theme:'light'|'dark'; setTheme:(value:'light'|'dark')=>void;
 }
@@ -19,7 +20,7 @@ function preference(key:string):string|null { try{return localStorage.getItem(`p
 export function PortalProvider({children,service:injected}:{children:ReactNode;service?:ShopkeeperService}) {
  const service = useMemo(()=>injected??createLocalService(),[injected]);
  const [snapshot,setSnapshot]=useState<Snapshot|null>(null);
- const [error,setError]=useState(false); const [attempt,setAttempt]=useState(0);
+ const [error,setError]=useState(false); const [connectionError,setConnectionError]=useState<string|null>(null); const [attempt,setAttempt]=useState(0);
  const [language,setLanguageState]=useState<Language>(()=>{const v=preference('language');return v==='hi'||v==='kn'?v:'en';});
  const [theme,setThemeState]=useState<'light'|'dark'>(()=>preference('theme')==='dark'?'dark':'light');
  const [toasts,setToasts]=useState<Toast[]>([]); const serial=useRef(0); const request=useRef(0);
@@ -38,11 +39,11 @@ export function PortalProvider({children,service:injected}:{children:ReactNode;s
   };
  },[]);
  useEffect(()=>{document.documentElement.lang=language;document.documentElement.dataset.theme=theme;},[language,theme]);
- useEffect(()=>{let alive=true; const load=async(initial=false)=>{const n=++request.current;try{const next=initial?await service.initialize():await service.getQueueSnapshot();validateSnapshot(next);if(alive&&n===request.current){setSnapshot(next);setError(false);}}catch(e){if(alive){if(initial){setError(true);notify(e instanceof Error?e.message:'Could not open local data.','error');}else notify('Could not refresh local data. Retry your last action.','error');}}};
+ useEffect(()=>{let alive=true; const load=async(initial=false)=>{const n=++request.current;try{const next=initial?await service.initialize():await service.getQueueSnapshot();validateSnapshot(next);if(alive&&n===request.current){setSnapshot(next);setError(false);setConnectionError(null);}}catch(e){if(alive){if(initial){setError(true);setConnectionError(injected?'Could not connect to the PrintQ workspace. Check your connection, then retry.':null);notify(e instanceof Error?e.message:(injected?'Could not connect to the PrintQ workspace.':'Could not open local data.'),'error');}else{const msg=injected?'Workspace connection interrupted. Showing the last synced queue.':'Could not refresh local data. Retry your last action.';setConnectionError(injected?msg:null);notify(msg,'error');}}}};
  void load(true); const unsubscribe=service.subscribeToJobUpdates(()=>void load()); const timer=injected?undefined:setInterval(()=>void load(),15000);
  return ()=>{alive=false;unsubscribe();clearInterval(timer);};
  },[service,injected,attempt,notify]);
  useEffect(()=>()=>{if(!injected)service.dispose();},[service,injected]);
  const run=useCallback(async(operation:()=>Promise<Snapshot>,success='Update saved')=>{try{const next=await operation();validateSnapshot(next);++request.current;setSnapshot(next);notify(success,'success');return true;}catch(e){notify(e instanceof Error?e.message:'Operation failed. Try again.','error');try{const next=await service.getQueueSnapshot();validateSnapshot(next);++request.current;setSnapshot(next);}catch{/* Keep last valid state visible; original error remains announced. */}return false;}},[notify,service]);
- return <><div className="toast-region" aria-label={t('Notifications')}>{toasts.map(toast=><div className={`toast ${toast.kind}`} key={toast.id} role={toast.kind==='error'?'alert':'status'}><span>{t(toast.message)}</span><button className="icon-button" aria-label={t('Dismiss notification')} onClick={()=>setToasts(v=>v.filter(item=>item.id!==toast.id))}>×</button></div>)}</div>{snapshot?<Context.Provider value={{snapshot,service,run,notify,t,language,setLanguage,theme,setTheme}}>{children}</Context.Provider>:<main className="startup"><div className="brand-mark">Q</div><h1>PrintQ</h1>{error?<><p role="alert">{t('Local storage could not be opened. Check browser storage permissions, then retry.')}</p><button className="button primary" onClick={()=>{setError(false);setAttempt(v=>v+1);}}>{t('Retry')}</button></>:<p role="status">{t('Loading your workspace…')}</p>}</main>}</>;
+ return <><div className="toast-region" aria-label={t('Notifications')}>{toasts.map(toast=><div className={`toast ${toast.kind}`} key={toast.id} role={toast.kind==='error'?'alert':'status'}><span>{t(toast.message)}</span><button className="icon-button" aria-label={t('Dismiss notification')} onClick={()=>setToasts(v=>v.filter(item=>item.id!==toast.id))}>×</button></div>)}</div>{snapshot?<Context.Provider value={{snapshot,service,run,notify,connectionError,t,language,setLanguage,theme,setTheme}}>{children}</Context.Provider>:<main className="startup"><div className="brand-mark">Q</div><h1>PrintQ</h1>{error?<><p role="alert">{injected?'Could not connect to the PrintQ workspace. Check your connection, then retry.':t('Local storage could not be opened. Check browser storage permissions, then retry.')}</p><button className="button primary" onClick={()=>{setError(false);setConnectionError(null);setAttempt(v=>v+1);}}>{t('Retry')}</button></>:<p role="status">{t('Loading your workspace…')}</p>}</main>}</>;
 }
